@@ -42,19 +42,6 @@ class ExponentialBlocks_Events(FitnessFunc):
         a : array-like
             optimal parameter for each block identified by T_k
         """
-        def compute_S_k(T_k,N_k):
-            """array of the S variables needed to calculate a as in eq C110 in Scargle (2013) 
-            """
-            return -(1/N_k)*np.flip(np.cumsum(T_k))
-        def compute_Q_k(a,T_k):
-            """as above
-            """
-            return np.exp(-a*T_k)*(1/(1-np.exp(-a*T_k)))
-
-        def f(a,T_k,Q_k,S_k):
-            """function whose 0 is the a that we need to find
-            """
-            return (1/a)-T_k*Q_k+S_k
         #initialise the value of a as an array
         if type(a_0)==int:
             a = a_0 * np.ones_like(T_k,dtype=float)
@@ -63,12 +50,19 @@ class ExponentialBlocks_Events(FitnessFunc):
         else:
             raise ValueError()
         #implementation of Newton's method to find the optimal a
-        for i in range(100): #TODO implementare una maniera più intelligente di terminare Newton
-            Q_k = compute_Q_k(a,T_k)
-            S_k = compute_S_k(T_k,N_k)
-            num = f(a,T_k,Q_k,S_k)
-            den = -np.power(1/a,2)+T_k*T_k*Q_k*(1+Q_k)
-            a -= np.divide(num,den)
+        i=1
+        f=1
+        while i<100 and np.any(f>1e-10): #TODO implementare una maniera più intelligente di terminare Newton
+            #Q_k defined as in C114 of Scargle (2013)
+            Q_k = np.exp(-a*T_k)*(1/(1-np.exp(-a*T_k)))
+            #S_k defined as in C110 of Scargle (2013)
+            S_k = -(1/N_k)*np.flip(np.cumsum(T_k))
+            #f defined as in C109 of Scargle (2013)
+            f = (1/a)-T_k*Q_k+S_k
+            #f_prime defined as in C113 of Scargle (2013)
+            f_prime = -np.power(1/a,2)+T_k*T_k*Q_k*(1+Q_k)
+            a -= np.divide(f,f_prime)
+            i+=1
         return a
 
     def fitness(self, N_k, T_k):

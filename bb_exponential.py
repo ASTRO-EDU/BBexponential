@@ -51,12 +51,9 @@ class ExponentialBlocks_Events(FitnessFunc):
             """
             return np.exp(-a*T_k)*(1/(1-np.exp(-a*T_k)))
 
-        def f(a,T_k,N_k):
+        def f(a,T_k,Q_k,S_k):
             """function whose 0 is the a that we need to find
             """
-
-            S_k=compute_S_k(T_k,N_k)
-            Q_k=compute_Q_k(a,T_k)
             return (1/a)-T_k*Q_k+S_k
         #initialise the value of a as an array
         if type(a_0)==int:
@@ -68,7 +65,8 @@ class ExponentialBlocks_Events(FitnessFunc):
         #implementation of Newton's method to find the optimal a
         for i in range(100): #TODO implementare una maniera più intelligente di terminare Newton
             Q_k = compute_Q_k(a,T_k)
-            num = f(a,T_k,N_k)
+            S_k = compute_S_k(T_k,N_k)
+            num = f(a,T_k,Q_k,S_k)
             den = -np.power(1/a,2)+T_k*T_k*Q_k*(1+Q_k)
             a -= np.divide(num,den)
         return a

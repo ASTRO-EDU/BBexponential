@@ -26,7 +26,14 @@ class ExponentialBlocks_Events(FitnessFunc):
         If ``ncp_prior`` is specified, ``gamma`` and ``p0`` is ignored.
     """
 
-    def compute_a(self,N_k, T_k, a_0=1):
+    def anti_N_k(self,N_k):
+        x = np.zeros(len(N_k))
+        x[-1]=N_k[-1]
+        for i in range(len(N_k)-1):
+            x[i] = N_k[i]-N_k[i+1]
+        return x
+
+    def compute_a(self,T_k,N_k,S_k):
         """Computes as instructed by eq. C116 in Scargle (2013).
 
         Parameters
@@ -42,31 +49,63 @@ class ExponentialBlocks_Events(FitnessFunc):
         a : array-like
             optimal parameter for each block identified by T_k
         """
-        #initialise the value of a as an array
-        if type(a_0)==int:
-            a = a_0 * np.ones_like(T_k,dtype=float)
-        elif type(a_0)==np.ndarray:
-            a=a_0
-        else:
-            raise ValueError()
-        #implementation of Newton's method to find the optimal a
-        i=1
-        f=1
-        while i<100 and np.any(f>1e-10): #TODO implementare una maniera più intelligente di terminare Newton
+        a = np.ones_like(T_k,dtype=float)
+        f = 1
+        i = 1
+        #print(T_k,N_k,S_k)
+        #implementation of Newton's method to find optimal a
+        while i<100 and np.any(np.abs(f)>1e-8):
             #Q_k defined as in C114 of Scargle (2013)
-            Q_k = np.exp(-a*T_k)*(1/(1-np.exp(-a*T_k)))
-            #S_k defined as in C110 of Scargle (2013)
-            S_k = -(1/N_k)*np.flip(np.cumsum(T_k))
+            Q_k = np.exp(-a*T_k)/(1-np.exp(-a*T_k))
             #f defined as in C109 of Scargle (2013)
-            f = (1/a)-T_k*Q_k+S_k
+            f = (1/a) - T_k*Q_k + S_k
             #f_prime defined as in C113 of Scargle (2013)
-            f_prime = -np.power(1/a,2)+T_k*T_k*Q_k*(1+Q_k)
+            f_prime = -(1/(a*a)) + T_k*T_k*Q_k*(1+Q_k)
             a -= np.divide(f,f_prime)
-            i+=1
+            #print(i,max(np.abs(f)),a)
+            #print(f'a:{a}')
+            i += 1
+        #print(i,max(np.abs(f)))
         return a
 
-    def fitness(self, N_k, T_k):
+    def fitness(self,T_k,N_k):
+        #S_k defined as in C110 of Scargle (2013)
+        S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
+        a = self.compute_a(T_k,N_k,S_k)
         # the log (to have additivity of the blocks) of C105 from Scargle (2013)
-        #print(N_k,T_k)
-        a = self.compute_a(N_k,T_k)
-        return np.log(N_k*np.log(np.divide(a*N_k,1-np.exp(-a*T_k)))-a*np.flip(np.cumsum(T_k))-N_k)
+        likelihood = N_k * np.log((a*N_k)/(1-np.exp(-a*T_k))) + a*N_k*S_k - N_k
+        return np.log(likelihood)
+
+    def get_parameters(self,edge_l,edge_r,t,x):
+        T_k,N_k,S_k = self.get_T_k_N_k_S_k_from_edges(edge_l,edge_r,t,x)
+        a = self.compute_a(T_k,N_k,S_k)
+        gamma = np.divide(a*N_k,1-np.exp(-a*T_k))
+        return {'a':a[0],'gamma':gamma[0]}
+
+    def get_T_k_N_k_S_k_from_edges(self,edge_l,edge_r,t,x):
+        flagStart=0
+        flagEnd=0
+        t_end_index=0
+        for i,t_d in enumerate(t):
+            if edge_l<=t_d and t_d<=edge_r:
+                if flagStart==0:
+                    flagStart=1
+                    t_start_index=i
+            elif t_d>edge_r and flagEnd==0:
+                flagEnd=1
+                t_end_index=i
+        if t_end_index == 0:
+            t_end_index = len(t)
+        t_new = t[t_start_index:t_end_index]
+        x_new = x[t_start_index:t_end_index]
+        #print(t_new)
+        #print(x_new)
+        edges = np.concatenate([np.array([edge_l]), 0.5 * (t_new[1:] + t_new[:-1]), np.array([edge_r])])
+        #print(edges)
+        #print(len(edges))
+        block_length = t_new[-1] - edges
+        #print(block_length)
+        T_k = block_length[:-1] - block_length[-1]
+        N_k = np.cumsum(x_new[::-1])[::-1]
+        S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
+        return T_k,N_k,S_k

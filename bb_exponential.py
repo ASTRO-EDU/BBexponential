@@ -229,7 +229,7 @@ class ExponentialBlocks_Events_Alt_2(Events):
     def compute_a(self,T_k,N_k,S_k):
         S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
         def Q(a):
-            tmp = np.clip(a*T_k,-20,20)
+            tmp = np.clip(a*T_k,-70,70)
             return np.exp(-tmp)/(1-np.exp(-tmp))
         def f(a):
             return (1/a)-T_k*Q(a)+S_k
@@ -295,7 +295,7 @@ class ExponentialBlocks_Events_Alt_2(Events):
         return T_k,N_k,S_k
     
     
-def test_bb_exp(t,x,fitn = ExponentialBlocks_Events, **kwargs):
+def test_bb_exp(t,x,fitn = ExponentialBlocks_Events,save = False,name = 'out.png', **kwargs):
     plt.step(t, x)
     t_start = time.time()
     xcoords = bayesian_blocks(t,x,fitness=fitn, **kwargs)
@@ -314,4 +314,6 @@ def test_bb_exp(t,x,fitn = ExponentialBlocks_Events, **kwargs):
         plot_t = np.linspace(edge_l,edge_r,1000)
         plot_x = gamma * np.exp(a*(plot_t - edge_r))
         plt.plot(plot_t,plot_x)
+    if save:
+        plt.savefig(name)
     plt.show()

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/nixos.org) (preloaded format=pdflatex 1980.1.1)  6 FEB 2024 12:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/nixos.org) (preloaded format=pdflatex 1980.1.1)  6 FEB 2024 17:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -247,56 +247,56 @@ LaTeX Font Info:    Trying to load font information for U+dsrom on input line 1
 (/nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-t
 exmfdist/tex/latex/doublestroke/Udsrom.fd
 File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
-) [5] [6] (./report.aux) ) 
+) [5] [6] [7] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 3310 strings out of 476024
- 53323 string characters out of 5764067
+ 3314 strings out of 476024
+ 53364 string characters out of 5764067
  1865388 words of memory out of 5000000
- 23751 multiletter control sequences out of 15000+600000
- 522392 words of font info for 74 fonts, out of 8000000 for 9000
+ 23754 multiletter control sequences out of 15000+600000
+ 523090 words of font info for 76 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 56i,11n,62p,1137b,242s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-
-combined-full-2022-final-texmfdist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</
-nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-tex
-mfdist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></nix/store/nfz47ln27gyx7frgz7
-c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/am
-sfonts/cm/cmbx12.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combi
-ned-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmex10.pfb></nix/s
-tore/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdis
-t/fonts/type1/public/amsfonts/cm/cmmi10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57
-d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfont
-s/cm/cmmi5.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-fu
-ll-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></nix/store/nf
-z47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts
-/type1/public/amsfonts/cm/cmmi8.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g7
-3-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr
-10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-
-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr12.pfb></nix/store/nfz47ln27g
-yx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/p
-ublic/amsfonts/cm/cmr17.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texliv
-e-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr5.pfb></
-nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-tex
-mfdist/fonts/type1/public/amsfonts/cm/cmr6.pfb></nix/store/nfz47ln27gyx7frgz7c1
-y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsf
-onts/cm/cmr7.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-
-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr8.pfb></nix/store/n
+ 56i,11n,62p,1137b,257s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texl
+ive-combined-full-2022-final-texmfdist/fonts/enc/dvips/cm-super/cm-super-ts1.en
+c}</nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final
+-texmfdist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></nix/store/nfz47ln27gyx7f
+rgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/publi
+c/amsfonts/cm/cmbx12.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-c
+ombined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmex10.pfb></n
+ix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texm
+fdist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></nix/store/nfz47ln27gyx7frgz7c
+1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/ams
+fonts/cm/cmmi5.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combine
+d-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></nix/stor
+e/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/f
+onts/type1/public/amsfonts/cm/cmmi8.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lc
+a8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm
+/cmr10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2
+022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr12.pfb></nix/store/nfz47l
+n27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/typ
+e1/public/amsfonts/cm/cmr17.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-te
+xlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr5.pf
+b></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final
+-texmfdist/fonts/type1/public/amsfonts/cm/cmr6.pfb></nix/store/nfz47ln27gyx7frg
+z7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/
+amsfonts/cm/cmr7.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combi
+ned-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr8.pfb></nix/sto
+re/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/
+fonts/type1/public/amsfonts/cm/cmsy10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2
+lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/
+cm/cmsy7.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full
+-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmti10.pfb></nix/store/nfz
+47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/
+type1/public/amsfonts/cm/cmtt10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g7
+3-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/doublestroke/ds
+rom10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-20
+22-final-texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></nix/store/n
 fz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/font
-s/type1/public/amsfonts/cm/cmsy10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8
-g73-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/c
-msy7.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-202
-2-final-texmfdist/fonts/type1/public/amsfonts/cm/cmti10.pfb></nix/store/nfz47ln
-27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/type
-1/public/amsfonts/cm/cmtt10.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-te
-xlive-combined-full-2022-final-texmfdist/fonts/type1/public/doublestroke/dsrom1
-0.pfb></nix/store/nfz47ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-f
-inal-texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></nix/store/nfz47
-ln27gyx7frgz7c1y57d2lca8g73-texlive-combined-full-2022-final-texmfdist/fonts/ty
-pe1/public/cm-super/sfrm1000.pfb>
-Output written on report.pdf (7 pages, 243718 bytes).
+s/type1/public/cm-super/sfrm1000.pfb>
+Output written on report.pdf (8 pages, 246941 bytes).
 PDF statistics:
- 134 PDF objects out of 1000 (max. 8388607)
- 82 compressed objects within 1 object stream
+ 137 PDF objects out of 1000 (max. 8388607)
+ 84 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

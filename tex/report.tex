@@ -164,4 +164,12 @@ N_k\left(aT_k+\log(-aN_k)+aS_k-1\right).
 $$
 \end{itemize}
 \end{remark}
+\begin{remark}
+Quando si usa questo algoritmo è importante notare questo: le funzioni esponenziali da un certo punto di vista ci permettono di avere molta più flessibilità, però questo non è affatto gratuito. Messo a confronto anche semplicemente con Bayesian Blocks con funzione di fitting costante questo algoritmo non è strettamente migliore, ha infatti sia alcune potenzialità che alcuni problemi che nel sopracitato metodo non compaiono:
+\begin{itemize}
+\item \'E proprio della natura della funzione esponenziale la sua velocità nel crescere, questo ha il merito di permettere di rappresentare alcuni tipi particolari di dati con grande fedeltà, però bisogna sempre ricordarsi del pericolo che questo comporta: se il metodo fallisse, ad esempio per una scelta sbagliata del parametro $ncp\_prior$, questo potrebbe avvenire in maniera esplosiva. Perciò è fondamentale scegliere correttamente questo parametro per avere dei risultati attendibili.
+\item Il calcolo dei parametri è molto più costoso a causa della non esistenza di una soluzione analitica del massimo. Per cui in casi in cui il costo computazionale dovesse essere una priorità potrebbe non essere (almeno direttamente) il metodo più adatto.
+\end{itemize}
+Ci tengo a mettere in chiaro però che questi problemi non rendono il metodo inutile, ma sono problemi con cui bisogna fare i conti per poter apprezzare la superiore flessibilità che funzioni più generiche delle costanti possono offrire.
+\end{remark}
 \end{document}

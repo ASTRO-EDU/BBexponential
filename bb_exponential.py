@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from astropy.stats import Events, bayesian_blocks
 import scipy
 
-class ExponentialBlocks_Events(Events):
+class ExponentialBlocks_Events_Deprecated(Events):
     r""" Bayesian Blocks Fitness for binned or unbinned events with piecewise exponential function over the blocks
 
     Parameters
@@ -113,7 +113,7 @@ class ExponentialBlocks_Events(Events):
         S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
         return T_k,N_k,S_k
 
-class ExponentialBlocks_Events_Alt(Events):
+class ExponentialBlocks_Events_Deprecated_Alt(Events):
     r""" Bayesian Blocks Fitness for binned or unbinned events with piecewise exponential function over the blocks
     
     Parameters
@@ -194,7 +194,7 @@ class ExponentialBlocks_Events_Alt(Events):
         S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
         return T_k,N_k,S_k
     
-class ExponentialBlocks_Events_Alt_2(Events):
+class ExponentialBlocks_Events(Events):
     r""" Bayesian Blocks Fitness for binned or unbinned events with piecewise exponential function over the blocks
     
     Parameters
@@ -227,7 +227,6 @@ class ExponentialBlocks_Events_Alt_2(Events):
         return x
     
     def compute_a(self,T_k,N_k,S_k):
-        S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
         def Q(a):
             tmp = np.clip(a*T_k,-70,70)
             return np.exp(-tmp)/(1-np.exp(-tmp))
@@ -281,24 +280,18 @@ class ExponentialBlocks_Events_Alt_2(Events):
             t_end_index = len(t)
         t_new = t[t_start_index:t_end_index]
         x_new = x[t_start_index:t_end_index]
-        #print(t_new)
-        #print(x_new)
         edges = np.concatenate([np.array([edge_l]), 0.5 * (t_new[1:] + t_new[:-1]), np.array([edge_r])])
-        #print(edges)
-        #print(len(edges))
         block_length = t_new[-1] - edges
-        #print(block_length)
         T_k = block_length[:-1] - block_length[-1]
         N_k = np.cumsum(x_new[::-1])[::-1]
         S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
-        #print(T_k,N_k,S_k)
         return T_k,N_k,S_k
     
     
-def test_bb_exp(t,x,fitn = ExponentialBlocks_Events,save = False,name = 'out.png', **kwargs):
+def test_bb_exp(t,x,fitness = ExponentialBlocks_Events,save = False,name = 'out.png', **kwargs):
     plt.step(t, x)
     t_start = time.time()
-    xcoords = bayesian_blocks(t,x,fitness=fitn, **kwargs)
+    xcoords = bayesian_blocks(t,x,fitness=fitness, **kwargs)
     t_used = time.time()-t_start
     print(f'Tempo di Calcolo: {t_used}')
     for xc in xcoords:
@@ -307,7 +300,7 @@ def test_bb_exp(t,x,fitn = ExponentialBlocks_Events,save = False,name = 'out.png
     for i in range(len(xcoords)-1):
         edge_l = xcoords[i]
         edge_r = xcoords[i+1]
-        params = fitn(**kwargs).get_parameters(edge_l,edge_r,t,x)
+        params = fitness(**kwargs).get_parameters(edge_l,edge_r,t,x)
         a = params['a']
         gamma = params['gamma']
         print(f'Blocco {i}: a={a},gamma={gamma}')

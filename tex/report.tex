@@ -9,6 +9,8 @@
 \author{Alessio Rondelli}
 \title{Bayesian Blocks con funzione esponenziale a tratti}
 
+\usepackage[margin=1in]{geometry}
+
 \newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
 
@@ -149,6 +151,232 @@ Si presenta ora il punto cruciale, ovvero il calcolo della costante $ncp\_prior=
 \item Esiste un'ulteriore tecnica che non viene qui riportata, che si può consultare nella sezione 2.7 di Scargle (2013).
 \end{enumerate}
 Una volta che sono state fatte queste stime si può applicare un'interpolazione su questi dati per avere una stima di $ncp\_prior$ in funzione di $p\_0$ e di $N$.
+
+Nell'implementazione si è scelta una interpolazione tramite spline sui dati costruiti con $p\_0$ uguale a $0$ per semplicità. Tali dati sono elencati nella seguente tabella.
+
+\begin{tabular}{|c|c|}
+\hline
+N & ncp\_prior \\
+\hline
+140000 & 300 \\
+\hline
+165450 & 700 \\
+\hline
+190900 & 1050 \\
+\hline
+216350 & 1300 \\
+\hline
+241800 & 1550 \\
+\hline
+267250 & 1800 \\
+\hline
+292700 & 2050 \\
+\hline
+318150 & 2300 \\
+\hline
+343600 & 2400 \\
+\hline
+369050 & 2600 \\
+\hline
+394500 & 2950 \\
+\hline
+419950 & 3000 \\
+\hline
+445400 & 3200 \\
+\hline
+470850 & 3300 \\
+\hline
+496300 & 3700 \\
+\hline
+521750 & 3800 \\
+\hline
+547200 & 4000 \\
+\hline
+572650 & 4150 \\
+\hline
+598100 & 4200 \\
+\hline
+623550 & 4400 \\
+\hline
+649000 & 4550 \\
+\hline
+674450 & 4700 \\
+\hline
+699900 & 4800 \\
+\hline
+725350 & 5000 \\
+\hline
+750800 & 5100 \\
+\hline 
+\end{tabular} 
+\quad
+\begin{tabular}{|c|c|}
+\hline
+N & ncp\_prior \\
+\hline
+776250 & 5300 \\
+\hline
+801700 & 5250 \\
+\hline
+827150 & 5400 \\
+\hline
+852600 & 5600 \\
+\hline
+878050 & 5700 \\
+\hline
+903500 & 5900 \\
+\hline
+928950 & 5900 \\
+\hline
+954400 & 6100 \\
+\hline
+979850 & 6300 \\
+\hline
+1005300 & 6300 \\
+\hline
+1030750 & 6350 \\
+\hline
+1056200 & 6350 \\
+\hline
+1081650 & 6500 \\
+\hline
+1107100 & 6500 \\
+\hline
+1132550 & 6700 \\
+\hline
+1158000 & 6600 \\
+\hline
+1183450 & 6650 \\
+\hline
+1208900 & 6650 \\
+\hline
+1234350 & 6650 \\
+\hline
+1259800 & 6700 \\
+\hline
+1285250 & 6750 \\
+\hline
+1310700 & 6750 \\
+\hline
+1336150 & 6750 \\
+\hline
+1361600 & 6750 \\
+\hline
+1387050 & 6850 \\
+\hline
+\end{tabular} 
+\quad
+\begin{tabular}{|c|c|}
+\hline
+N & ncp\_prior \\
+\hline
+1412500 & 6850 \\
+\hline
+1437950 & 6850 \\
+\hline
+1463400 & 6900 \\
+\hline
+1488850 & 6900 \\
+\hline
+1514300 & 6900 \\
+\hline
+1539750 & 7000 \\
+\hline
+1565200 & 7000 \\
+\hline
+1590650 & 7000 \\
+\hline
+1616100 & 7000 \\
+\hline
+1641550 & 7000 \\
+\hline
+1667000 & 7000 \\
+\hline
+1692450 & 7000 \\
+\hline
+1717900 & 7000 \\
+\hline
+1743350 & 7000 \\
+\hline
+1768800 & 7000 \\
+\hline
+1794250 & 7000 \\
+\hline
+1819700 & 7000 \\
+\hline
+1845150 & 7000 \\
+\hline
+1870600 & 7000 \\
+\hline
+1896050 & 7000 \\
+\hline
+1921500 & 7000 \\
+\hline
+1946950 & 7000 \\
+\hline
+1972400 & 7000 \\
+\hline
+1997850 & 7000 \\
+\hline
+2023300 & 7000 \\
+\hline 
+\end{tabular}
+\quad
+\begin{tabular}{|c|c|}
+\hline
+N & ncp\_prior \\
+\hline
+2048750 & 7000 \\
+\hline
+2074200 & 7000 \\
+\hline
+2099650 & 7000 \\
+\hline
+2125100 & 7000 \\
+\hline
+2150550 & 7000 \\
+\hline
+2176000 & 7000 \\
+\hline
+2201450 & 7000 \\
+\hline
+2226900 & 7000 \\
+\hline
+2252350 & 7000 \\
+\hline
+2277800 & 7000 \\
+\hline
+2303250 & 7000 \\
+\hline
+2328700 & 7000 \\
+\hline
+2354150 & 7000 \\
+\hline
+2379600 & 7000 \\
+\hline
+2405050 & 7000 \\
+\hline
+2430500 & 7000 \\
+\hline
+2455950 & 7000 \\
+\hline
+2481400 & 7000 \\
+\hline
+2506850 & 7000 \\
+\hline
+2532300 & 7000 \\
+\hline
+2557750 & 7000 \\
+\hline
+2583200 & 7000 \\
+\hline
+2608650 & 7000 \\
+\hline
+2634100 & 7000 \\
+\hline
+2659550 & 7000 \\
+\hline 
+\end{tabular} 
 \section{Osservazioni senza particolare ordine}
 \begin{remark}
 In fase di calcolo della log-likelihood la nostra funzione \eqref{our_loglikel} non ha un buon comportamento computazionale: ad esempio, se la variabile $a$ risulta negativa il termine $-aT_k$ potrebbe essere abbastanza alto da causare un overflow nell'esponenziale; l'algoritmo in tal caso non ha problemi in quanto risulterebbe una log-likelihood sul blocco di $-\infty$, però questo potrebbe ostacolare l'ottimizzazione. Analogamente se $a$ risulta troppo vicino allo $0$ potrebbe succedere che l'argomento del $\log$ può esplodere se il denominatore dovesse diventare $0$ esatto. Per questi due casi si propongono due approssimazioni numeriche che dovrebbero evitare questo genere di problemi:

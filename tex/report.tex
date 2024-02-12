@@ -15,10 +15,10 @@
 \begin{document}
 \maketitle
 \chapter{Report}
-\section{Cenni Teorici}
-Siano dati $t=(t_1,...,t_n)$ e $x=(x_1,...,x_n)$ che corrispondono rispettivamente a una sequenza di reali non-negativi crescente e una sequenza di numeri naturali della medesima lunghezza. Noi cerchiamo di trovare la funzione esponenziale a tratti che ottimizzi una certa funzione di fitness rispetto questi dati. Nello specifico $t$ è una sequenza temporale e $x$ è una sequenza di valori provenienti da bin.
+\section{Cenni teorici}
+Siano dati $t=(t_1,...,t_n)$ e $x=(x_1,...,x_n)$ che corrispondono rispettivamente a una sequenza di reali non-negativi crescente e una sequenza di numeri naturali. Noi cerchiamo di trovare la funzione esponenziale a tratti che ottimizzi una certa funzione di fitness rispetto questi dati. Nello specifico, $t$ è una sequenza temporale e $x$ è una sequenza di valori provenienti da bin.
 
-Dati $t$ e $x$ si cerca di partizionare l'intervallo identificato dalla sequenza temporale $t$ mediante una successione di sottointervalli (chiamati blocchi) ove in ognuno di questi si cerca la migliore funzione esponenziale da cui i dati di $x$ provengono.
+Dati $t$ e $x$ si cerca di partizionare l'intervallo identificato dalla sequenza temporale $t$ mediante una successione di sottointervalli (chiamati blocchi), in ognuno dei quali si cerca la migliore funzione esponenziale da cui i dati di $x$ provengono.
 
 Nello specifico la funzione esponenziale che cerchiamo di fittare in un blocco è nella forma $\gamma e^{a(t-t_n)},$ dove $t_n$ è l'estremo destro del blocco, $\gamma$ è il valore della funzione alla fine del blocco e $a$ è il termine del decadimento dell'esponenziale. All'interno di ogni blocco si cerca di fittare la funzione ottimizzando i valori $\gamma$ e $a$.
 
@@ -50,46 +50,49 @@ Nel nostro caso useremo la funzione $f(t_i) = \gamma e^{a(t_i-t_n)}$, per cui la
 \begin{equation*}
 \log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\sum_{i=1}^n \log(\tilde{x_i!})-\sum_{i=1}^n\gamma e^{a(t_i-t_n)}.
 \end{equation*}
-Forti di questa base teorica si passa poi alla statistica di Cash ove l'ultima somma si converte in integrale:
+Forti di questa base teorica si passa alla statistica di Cash, ove l'ultima somma si converte in integrale:
 \begin{equation}
 \log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\sum_{i=1}^n \log(\tilde{x_i!})-\int_{t_1}^{t_n}\gamma e^{a(t-t_n)} dt.
 \end{equation}
 \end{remark}
-L'uso della log-likelihood è centrale in quanto ci permette di avere la proprietà di additività sui blocchi che è propedeutica all'uso dell'algoritmo di programmazione dinamica ideato da Scargle, ripassiamo i passaggi fondamentali di questo algoritmo:
+L'uso della log-likelihood è centrale in quanto ci permette di avere la proprietà di additività sui blocchi, che è propedeutica all'uso dell'algoritmo di programmazione dinamica ideato da Scargle. Ripassiamo i passaggi fondamentali di questo algoritmo:
 \begin{itemize}
 \item Partendo dal primo bin esiste una sola partizione di questo, perciò è nota la partizione ottima di un solo bin.
-\item Supponiamo di conoscere la partizione ottima dei primi $R$ bins. Analizzando i primi $R+1$ bins notiamo che grazie alla proprietà di additività delle log-likelihood (o di qualunque funzione di fitness legittima) la partizione ottima sarà divisibile in $2$ parti: la partizione ottima dei primi $r$ bins e l'ultimo blocco che va dal bin $r+1$ fino al bin $R+1$. Di conseguenza per ogni $r$ da $1$ a $R$ calcoliamo la fitness della partizione (che è uguale alla somma delle fitness su ogni blocco della partizione) e selezioniamo $r$ il valore che massimizza la fitness della partizione.
-\item Abbiamo così trovato la legge induttiva, iterando fino a $N$ (il numero di bin) otterremo l'ottima partizione.
+\item Supponiamo di conoscere la partizione ottima dei primi $R$ bins. Analizzando i primi $R+1$ bins notiamo che grazie alla proprietà di additività delle log-likelihood (o di qualunque funzione di fitness legittima) la partizione ottima sarà divisibile in $2$ parti: la partizione ottima dei primi $r$ bins e l'ultimo blocco che va dal bin $r+1$ fino al bin $R+1$. Di conseguenza per ogni $r$ da $1$ a $R$ calcoliamo la fitness della partizione (che è uguale alla somma delle fitness su ogni blocco della partizione) e selezioniamo $r$ così che massimizzi la fitness della partizione.
+\item Abbiamo in questo modo trovato la legge induttiva. Iterando fino a $N$ (il numero di bin) otterremo l'ottima partizione.
 \end{itemize}
 \begin{remark}
-Notiamo che ad ogni passaggio dell'esecuzione si mettono a confronto le log-likelihood delle partizioni dei primi $R$ bins: in particolare indipendentemente dalla funzione di fitting notiamo che è presente un termine che dopo aver fatto la somma sarà costante su ogni partizione: $-\sum_{i=1}^n \log(\tilde{x_i!})$ e per questa ragione a fini di massimizzazione può essere ignorato.
+Notiamo che ad ogni passaggio dell'esecuzione si mettono a confronto le log-likelihood delle partizioni dei primi $R$ bins: in particolare indipendentemente dalla funzione di fitting notiamo che è presente un termine che dopo aver fatto la somma sarà costante su ogni partizione: $-\sum_{i=1}^n \log(\tilde{x_i!})$, e, per questa ragione, a fini di massimizzazione può essere ignorato.
 
 Di conseguenza la funzione di fitting che verrà usata nei fatti sarà:
-\begin{gather}
+\begin{equation*}
 \log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i\log(f(t_i)) -\int_{t_1}^{t_n}f(t) dt \\
-\log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\int_{t_1}^{t_n}\gamma e^{a(t-t_n)} dt\label{fitness_exp}
+\end{equation*}
+e nel nostro caso specifico
+\begin{gather}
+\log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\int_{t_1}^{t_n}\gamma e^{a(t-t_n)} dt.\label{fitness_exp}
 \end{gather}
 \end{remark}
-Notiamo però che in generale la log-likelihood dipende dai parametri della funzione da fittare sui dati, questo comporta la necessità di calcolarli mediante massimizzazione della log-likelihood.
+Tuttavia notiamo che in generale la log-likelihood dipende dai parametri della funzione da fittare sui dati: ciò comporta la necessità di calcolarli mediante massimizzazione della log-likelihood.
 \subsection{Calcolo dei parametri di fitting}
-In ogni blocco, che possiamo identificare matematicamente come una realizzazione di una variabile aleatoria $x\in\mathbb{N}^n$ e da una successione finita crescente di tempi $t\in\mathbb{R}^n$, è necessario ottimizzare i parametri di fitting che definiscono la funzione $f(n)$. In generale la funzione da scegliersi dovrebbe avere delle proprietà abbastanza chiare e se possibile essere sufficientemente liscia da garantire il calcolo di derivata almeno al primo ordine. Infatti se così dovesse essere sarebbe possibile in generale usare la tecnica della salita del gradiente per trovare i parametri ottimi per massimizzare la log-likelihood.
+In ogni blocco, che possiamo identificare matematicamente come una realizzazione di una variabile aleatoria $x\in\mathbb{N}^n$ e da una successione finita crescente di tempi $t\in\mathbb{R}^n$, è necessario ottimizzare i parametri di fitting che definiscono la funzione $f(n)$. In generale la funzione da scegliersi dovrebbe avere delle proprietà teoriche abbastanza note e se possibile essere sufficientemente liscia da garantire il calcolo di derivata almeno al primo ordine. Infatti se così dovesse essere sarebbe possibile in generale usare la tecnica della salita del gradiente per trovare i parametri ottimi per massimizzare la log-likelihood.
 
-Nel nostro caso la funzione è $C^{\infty}$ e perciò siamo in grado di derivare quante volte vogliamo, il che sarà centrale a fini di implementazione, ma non solo: difatti la semplicità della funzione ci permette di trovare analiticamente uno dei parametri ottimi del modello che permette di velocizzare usando un algoritmo molto rapido.
+Nel nostro caso la funzione è $C^{\infty}$ e perciò siamo in grado di derivare quante volte vogliamo, il che sarà centrale a fini di implementazione, ma non solo: difatti la semplicità della funzione ci permette di trovare analiticamente uno dei parametri ottimi del modello che permette di velocizzare il calcolo usando un algoritmo molto rapido.
 
-Di conseguenza siccome vogliamo massimizzare \eqref{fitness_exp} cerchiamo intanto i punti critici della funzione di fitness sul $k$-esimo blocco:
+Di conseguenza, al fine di massimizzare \eqref{fitness_exp} cerchiamo i punti critici della funzione di fitness sul $k$-esimo blocco:
 \begin{align*}
 \log L_k(\tilde{x}) &= \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\int_{t_1}^{t_n}\gamma e^{a(t-t_n)} dt\\
 &=N_k\log\gamma + a\tilde{x}_i\sum_{i=1}^n(t_i-t_n)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right),
 \end{align*}
-dove $T_k$ è la lunghezza del temporale del blocco. Cerchiamo ora i punti critici
+dove $T_k$ è la lunghezza del temporale del blocco. Cerchiamo ora i punti critici:
 \begin{align*}
 \frac{\partial F_k(\tilde{x})}{\partial \gamma} = \frac{N_k}{\gamma} - \left(\frac{1-e^{-aT_k}}{a}\right)
 \end{align*}
-Per cui imponendola uguale a $0$ otteniamo 
+per cui, imponendola uguale a $0$, otteniamo 
 $$
 \gamma = \frac{aN_k}{1-e^{-aT_k}}.
 $$
-Di conseguenza
+Di conseguenza,
 \begin{align}\nonumber
 F_{max,k}(\tilde{x}) &= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}}\right) + a\sum_{i=1}^n\tilde{x}_i(t_i-t_n)-\frac{aN_k}{1-e^{-aT_k}}\left(\frac{1-e^{-aT_k}}{a}\right)\\ \nonumber
 &= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}}\right) + a\sum_{i=1}^n\tilde{x}_i(t_i-t_n)-N_k\\
@@ -97,27 +100,27 @@ F_{max,k}(\tilde{x}) &= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}}\right) + a\sum_{i=
 \end{align}
 dove $S_k = \frac{1}{N_k}\sum_{i=1}^n\tilde{x}_i(t_i-t_n)$. 
 
-Per valori sensibili di $N_k$ e $T_k$ la funzione è concava e quindi è sufficiente trovare un punto critico (se esiste) per trovare l'unico massimo. Siccome la funzione è di singola variabile ed anche molto semplice da derivare si è scelta una generalizzazione del metodo di Newton, il metodo di Halley, per trovare lo $0$ della derivata della nostra funzione $F_{max,k}$.
+Per valori sensibili di $N_k$ e $T_k$ la funzione è concava, perciò è sufficiente trovare un punto critico (se esiste) per trovare l'unico massimo. Siccome la funzione è di singola variabile e anche molto semplice da derivare, si è scelta una generalizzazione del metodo di Newton, il metodo di Halley, per trovare lo $0$ della derivata della nostra funzione $F_{max,k}$.
 
-La scelta di questo algoritmo è dovuta sia a questioni di stabilità numerica che a questioni di velocità di convergenza (è molto stabile e veloce).
+La scelta di questo algoritmo è dovuta sia a questioni di stabilità numerica che a questioni di velocità di convergenza.
 \section{Implementazione}
-Per fare quanto descritto sopra ci appoggiamo alla libreria astropy per l'implementazione dell'algoritmo di Scargle (Bayesian Blocks) nel caso generale. Per implementare questa nuova funzione di fitness si è scelto di estendere la classe \texttt{Events} che implementa nel caso di funzione di fitting costante l'algoritmo. Difatti modificando il metodo \texttt{fit} è possibile mantenere tutta la struttura dell'algoritmo e cambiare soltanto il calcolo della funzione di fitness.
+Per fare quanto descritto sopra ci appoggiamo alla libreria Astropy per l'implementazione dell'algoritmo di Scargle (Bayesian Blocks) nel caso generale. Per implementare la funzione di fitness per il caso esponenziale si è scelto di estendere la classe \texttt{Events}, che implementa l'algoritmo nel caso di funzione di fitting costante. Difatti modificando il metodo \texttt{fit} è possibile mantenere tutta la struttura dell'algoritmo e cambiare soltanto il calcolo della funzione di fitness.
 
-Dal punto di vista più applicativo per applicare il metodo implementato è sufficiente fare
+Per applicare il metodo implementato è sufficiente fare:
 \begin{verbatim}
 from astropy import bayesian_blocks
 from bb_exponential import ExponentialBlocks_Events
 bayesian_blocks(t,x,fitness=ExponentialBlocks_Events,ncp_prior=***)
 \end{verbatim}
-Al momento è fondamentale specificare l'\texttt{ncp\_prior}, tramite ulteriori sviluppi sarà possibile calcolare l'\texttt{ncp\_prior} ottimo in funzione di \texttt{N} e di \texttt{p\_0}: rispettivamente la somma di tutti i dati \texttt{x} e il false detection rate.
+Il parametro \texttt{ncp\_prior} è possibile specificarlo a priori oppure lasciare la sua determinazione al calcolatore. Le specifiche sul calcolo automatico di un buon \texttt{ncp\_prior} verranno trattate nei prossimi capitoli.
 
 Questo metodo però ritorna solamente gli estremi dei nostri blocchi e non anche i parametri calcolati per la funzione di ottimo fitting sui blocchi.
-La scelta che si è fatta è stata quella di ricalcolare i parametri a fine esecuzione, si riconosce che dal punto di vista del mero costo computazionale questa non è la scelta migliore (è necessario ricalcolare i parametri in un secondo tempo), tuttavia le motivazioni sono queste:
+La scelta che si è fatta è stata quella di ricalcolare i parametri a fine esecuzione. Si riconosce che dal punto di vista del mero costo computazionale questa non è la scelta migliore (è necessario ricalcolare i parametri in un secondo tempo), tuttavia le motivazioni sono le seguenti:
 \begin{itemize}
-\item Questo è il comportamente del metodo della libreria scipy, estenderlo per avere in output sia gli estremi che i parametri richiede la riscrittura quantomeno del metodo \texttt{fit} della classe \texttt{FitnessFunc} di astropy affinchè in fase di "peeling off" dell'array \texttt{last} oltre al calcolo dell'ottimo estremo si ottengano anche i parametri ottimi, l'implementazione di questo sarebbe lenta e romperebbe la compatibilità con precedenti implementazioni.
-\item Il costo computazionale è sì maggiore, ma di una quantità abbastanza irrisoria rispetto al costo dell'algoritmo. Infatti l'algoritmo di programmazione dinamica durante l'esecuzione richiede di effettuare il calcolo di fitting sull'ultimo blocco $O(N^2)$, invece il costo di calcolo sul singolo blocco si può pensare come costante, di conseguenza dato che ci si aspetta che il numero di blocchi identificati sia molto più piccolo rispetto al numero di bins il costo di ricalcolo risulta irrisorio rispetto al calcolo di partizionamento ottimo.
+\item Il ricalcolo dei parametri è il comportamento della libreria Astropy; estenderlo per avere in output sia gli estremi che i parametri richiede la riscrittura quantomeno del metodo \texttt{fit} della classe \texttt{FitnessFunc} di Astropy, affinchè in fase di "peeling off" dell'array \texttt{last}, oltre al calcolo dell'ottimo estremo, si ottengano anche i parametri ottimi. L'implementazione di questo procedimento sarebbe lenta e romperebbe la compatibilità con precedenti implementazioni.
+\item Il costo computazionale è sì maggiore, ma di una quantità piuttosto irrisoria rispetto al costo dell'algoritmo. Infatti l'algoritmo di programmazione dinamica durante l'esecuzione richiede di effettuare il calcolo di fitting sull'ultimo blocco $O(N^2)$, invece il costo di calcolo sul singolo blocco si può pensare come costante; di conseguenza, dato che ci si aspetta che il numero di blocchi identificati sia molto più piccolo rispetto al numero di bins, il costo di ricalcolo risulta irrisorio rispetto al calcolo di partizionamento ottimo.
 \end{itemize}
-Dal punto di vista applicativo il ricalcolo è implementato mediante il metodo \texttt{get\_parameters} della classe \texttt{ExponentialBlocks\_Events} in questa maniera:
+Dal punto di vista applicativo il ricalcolo è implementato mediante il metodo \texttt{get\_parameters} della classe \texttt{ExponentialBlocks\_Events} nella seguente maniera:
 \begin{verbatim}
 edges = bayesian_blocks(t,x,fitness=ExponentialBlocks_Events, ncp_prior=***)
 edge_l,edge_r = edges[0],edges[1]
@@ -125,13 +128,13 @@ params = ExponentialBlocks_Events(ncp_prior=***).get_parameters(edge_l,edge_r,t,
 \end{verbatim}
 e i parametri vengono restituiti come un dizionario di chiavi \texttt{a} e \texttt{gamma}.
 
-Evidentemente allora questo metodo deve essere iterato su ogni coppia di estremi per ottenere i parametri di ogni blocco.
+Tale metodo deve essere iterato su ogni coppia di estremi per ottenere i parametri di ogni blocco.
 \section{Ottimizzazione iperparametri}
-Il modello è non parametrico, quindi verrebbe da pensare che non ci siano parametri da ottimizzare in quanto questi vengono già ottimizzati dall'algoritmo in fase di esecuzione, c'è però un problema: il numero di blocchi identificato.
+Il modello è non parametrico, quindi sembrerebbe che non ci siano parametri da ottimizzare in quanto questi vengono già ottimizzati dall'algoritmo in fase di esecuzione. Sorge però un problema: è necessario controllare il numero di blocchi identificati.
 
-Per semplificare il problema possiamo pensare che il numero dei blocchi identificati e la variabile aleatoria di cui i dati $x$ sono una realizzazione siano indipendenti. Facendo questo la likelihood complessiva sarà il prodotto tra le likelihood dei dati in ogni blocco e la likelihood che il numero di blocchi identificati sia quello corretto.
+Per semplificare il processo possiamo pensare che il numero di blocchi identificati e la variabile aleatoria di cui i dati $x$ sono una realizzazione siano indipendenti. Facendo questo la likelihood complessiva sarà il prodotto tra le likelihood dei dati in ogni blocco e la likelihood del numero di blocchi identificati.
 
-Sarebbe possibile dare qualunque tipo di distribuzione discreta alla variabile aleatoria del numero di blocchi, si sceglie però di usare una distribuzione geometrica in quanto di fatto ci aspetiamo che ci sia un maggiore peso da dare a piccoli numeri di blocchi rispetto a grandi numeri. Di conseguenza fissiamo che 
+Sarebbe possibile dare qualunque tipo di distribuzione discreta alla variabile aleatoria del numero di blocchi; tuttavia si sceglie di usare una distribuzione geometrica in quanto ci aspettiamo che ci sia un maggiore peso da dare a piccoli numeri di blocchi rispetto a grandi numeri. Di conseguenza fissiamo 
 $$P(N_{blocks}=n)=P_0\cdot\alpha^n\cdot\mathds{1}(n\leq N)$$
 con $\alpha\in(0,1)$ e $P_0$ costante di normalizzazione.
 
@@ -139,37 +142,32 @@ Naturalmente è possibile calcolare che $P_0 = \frac{1-\alpha}{1-\alpha^{N+1}}$.
 
 Avendo calcolata questa likelihood, alla fitness del blocco sarà necessario sommare $\log\alpha$ per normalizzare rispetto al numero di blocchi e rendere più improbabile una partizione con troppi o troppi pochi blocchi.
 
-Il problema sorge quando si rende necessario il calcolo di questa costante $ncp\_prior=\log\alpha$, infatti è evidente la sua dipendenza dal numero di bin $N$, ma riflettendoci è possibile notare che più è alto il valore atteso della variabile aleatoria $N_{blocks}$, più è probabile che ci siano falsi positivi, ovvero che venga identificato l'estremo di un blocco quando in realtà questo non dovrebbe succedere. Non sono note formule esatte, però è possibile seguire una di queste tecniche empiriche per trovare la scelta ottima (o quantomeno abbastanza\footnote{Potrebbe sembrare strano che si sia usata la frase "abbastanza buona", in effetti il filo centrale del metodo è l'ottimizzazione non ottenere un risultato buono ma non perfetto, tuttavia nei fatti il metodo è sufficientemente rigido da restituire i medesimi risultati a patto che questo parametro sia anche soltanto vicino a quello ottimo. Dal punto di vista matematico questo è triviale in quanto il numero di blocchi identificati è una variabile discreta mentre $ncp\_prior$ è un parametro continuo.} buona) di $ncp\_prior$:
+Si presenta ora il punto cruciale, ovvero il calcolo della costante $ncp\_prior=\log\alpha$. \'E evidente la sua dipendenza dal numero di bin $N$, ma è possibile notare che più è alto il valore atteso della variabile aleatoria $N_{blocks}$, più è probabile che ci siano falsi positivi, ovvero che venga identificato l'estremo di un blocco quando in realtà questo non dovrebbe succedere. Non sono note formule esatte, però è possibile seguire una di queste tecniche empiriche per trovare la scelta ottima (o quantomeno abbastanza\footnote{Il metodo è sufficientemente rigido da restituire i medesimi risultati a patto che questo parametro sia anche soltanto vicino a quello ottimo. Dal punto di vista matematico ciò è triviale in quanto il numero di blocchi identificati è una variabile discreta, mentre $ncp\_prior$ è un parametro continuo.} buona) di $ncp\_prior$:
 \begin{enumerate}
-\item Se possibile generare dati artificiali (simili a quelli su cui poi l'algoritmo dovrà essere applicato) si può testare l'algoritmo su vari valori possibili di $ncp\_prior$ e poi calcolare $p\_0$ rispetto a questi, infine si sceglie il valore di $ncp\_prior$ più basso (così che l'algoritmo sia il più sensibile possibile) che garantisca un false detection rate minore di un valore fissato in precedenza, $0.05$ ad esempio. Tenere conto però della dipendenza del parametro da $N$, sarà quindi necessario farlo anche per vari valori di $N$.
-\item Se si facesse esattamente come sopra ma su dati reali, questo potrebbe produrre dell'overfitting sui dati reali, e perciò è consigliabile farlo mediante $k$-cross-validation:
-
-Presi i dati reali questi si suddividono casualmente in $k$ sottoinsiemi della stessa cardinalità, dopodichè iterativamente si prende l'$i$-esimo sottoinsieme, che sarà l'insieme di verifica, e tutti gli altri, che saranno i nostri dati di allenamento. Si ottimizza la scelta di $ncp\_prior$ sui dati di allenamento rispetto a qualche funzione di fitness (ad esempio il numero di blocchi identificati, l'errore quadratico medio o il false detection rate). Dopo aver fatto questo si calcola la medesima fitness sui dati di verifica e si usa quel valore per confrontare i risultati al variare dell'$ncp\_prior$. Quello la cui fitness sui dati di verifica è più alta è l'$ncp\_prior$ che viene scelto.
-\item Esiste anche un'ulteriore tecnica che non viene qui riportata, è presente nella sezione 2.7 di Scargle (2013).
+\item Se è possibile generare dati artificiali (simili a quelli su cui poi l'algoritmo dovrà essere applicato), si può testare l'algoritmo su vari valori possibili di $ncp\_prior$ e poi calcolare $p\_0$ rispetto a questi; infine, si sceglie il valore di $ncp\_prior$ più basso (così che l'algoritmo sia il più sensibile possibile) che garantisca un false detection rate minore di un valore fissato in precedenza, $0.05$ ad esempio. Bisogna tenere conto tuttavia della dipendenza del parametro da $N$: sarà quindi necessario farlo per molteplici valori di $N$.
+\item Se si facesse esattamente come da punto $1$ bensì su dati reali, questo potrebbe produrre dell'overfitting, e perciò è preferibile utilizzare $k$-cross-validation\footnote{Presi i dati reali questi si suddividono casualmente in $k$ sottoinsiemi della stessa cardinalità, dopodichè iterativamente si prende l'$i$-esimo sottoinsieme, che sarà l'insieme di verifica, e tutti gli altri, che saranno i nostri dati di allenamento. Si ottimizza la scelta di $ncp\_prior$ sui dati di allenamento rispetto a qualche funzione di fitness (ad esempio il numero di blocchi identificati, l'errore quadratico medio o il false detection rate). Successivamente si calcola la medesima fitness sui dati di verifica e si usa quel valore per confrontare i risultati al variare dell'$ncp\_prior$. Quello che massimizza la fitness sui dati di verifica è l'$ncp\_prior$ che viene scelto.}.
+\item Esiste un'ulteriore tecnica che non viene qui riportata, che si può consultare nella sezione 2.7 di Scargle (2013).
 \end{enumerate}
-Una volta che sono state fatte queste stime si può interpolare un polinomio su questi dati per avere una stima di $ncp\_prior$ in funzione di $p\_0$ e di $N$.
-
-Al momento della scrittura i risultati devono finire di calcolare e quindi non si hanno ancora le formule empiriche precedentemente descritte.
+Una volta che sono state fatte queste stime si può applicare un'interpolazione su questi dati per avere una stima di $ncp\_prior$ in funzione di $p\_0$ e di $N$.
 \section{Osservazioni senza particolare ordine}
 \begin{remark}
-In fase di calcolo della log-likelihood la nostra funzione \eqref{our_loglikel} non ha un buon comportamento computazionale, in particolare se la variabile $a$ risulta negativa il termine $-aT_k$ potrebbe essere abbastanza alto da causare un overflow nell'esponenziale, l'algoritmo in tal caso non ha problemi in quanto risulterebbe una log-likelihood sul blocco di $-\infty$, però questo potrebbe causare problemi ai fini dell'ottimizzazione. Analogamente se $a$ risulta troppo vicino allo $0$ potrebbe succedere che l'argomento del $\log$ possa esplodere se il denominatore dovesse diventare $0$ esatto. Per questi due casi si propongono due approssimazioni numeriche che dovrebbero evitare questo genere di problemi:
+In fase di calcolo della log-likelihood la nostra funzione \eqref{our_loglikel} non ha un buon comportamento computazionale: ad esempio, se la variabile $a$ risulta negativa il termine $-aT_k$ potrebbe essere abbastanza alto da causare un overflow nell'esponenziale; l'algoritmo in tal caso non ha problemi in quanto risulterebbe una log-likelihood sul blocco di $-\infty$, però questo potrebbe ostacolare l'ottimizzazione. Analogamente se $a$ risulta troppo vicino allo $0$ potrebbe succedere che l'argomento del $\log$ può esplodere se il denominatore dovesse diventare $0$ esatto. Per questi due casi si propongono due approssimazioni numeriche che dovrebbero evitare questo genere di problemi:
 \begin{itemize}
 \item Tramite lo sviluppo di Taylor dell'esponenziale in caso di $a$ vicino allo 0 è possibile approssimare \eqref{our_loglikel} con
 $$
 N_k\left(\log\left(\frac{N_k}{T_k}\right)+aS_k-1\right).
 $$
-\item Siccome se $a$ dovesse risultare molto minore di $0$ l'esponenziale dominerebbe il termine $1$ è possibile ignorare il termine 1 a denominatore, di conseguenza approssimiamo \eqref{our_loglikel} con 
+\item Se $a$ dovesse risultare molto minore di $0$ l'esponenziale dominerebbe il termine $1$; in tal caso si può ignorare il termine 1 a denominatore, di conseguenza approssimiamo \eqref{our_loglikel} con 
 $$
 N_k\left(aT_k+\log(-aN_k)+aS_k-1\right).
 $$
 \end{itemize}
 \end{remark}
 \begin{remark}
-Quando si usa questo algoritmo è importante notare questo: le funzioni esponenziali da un certo punto di vista ci permettono di avere molta più flessibilità, però questo non è affatto gratuito. Messo a confronto anche semplicemente con Bayesian Blocks con funzione di fitting costante questo algoritmo non è strettamente migliore, ha infatti sia alcune potenzialità che alcuni problemi che nel sopracitato metodo non compaiono:
+Quando si usa questo algoritmo è importante notare che le funzioni esponenziali ci permettono di avere molta più flessibilità. Tuttavia, messo a confronto anche semplicemente con Bayesian Blocks con funzione di fitting costante questo algoritmo non è strettamente migliore: ha infatti sia alcune potenzialità che alcuni problemi che nel sopracitato metodo non compaiono.
 \begin{itemize}
-\item \'E proprio della natura della funzione esponenziale la sua velocità nel crescere, questo ha il merito di permettere di rappresentare alcuni tipi particolari di dati con grande fedeltà, però bisogna sempre ricordarsi del pericolo che questo comporta: se il metodo fallisse, ad esempio per una scelta sbagliata del parametro $ncp\_prior$, questo potrebbe avvenire in maniera esplosiva. Perciò è fondamentale scegliere correttamente questo parametro per avere dei risultati attendibili.
-\item Il calcolo dei parametri è molto più costoso a causa della non esistenza di una soluzione analitica del massimo. Per cui in casi in cui il costo computazionale dovesse essere una priorità potrebbe non essere (almeno direttamente) il metodo più adatto.
+\item \'E proprio della natura della funzione esponenziale la velocità nel crescere: questo permette di rappresentare alcuni tipi particolari di dati con grande fedeltà. Bisogna comunque fare attenzione al pericolo che ciò comporta: se il metodo fallisse, ad esempio per una scelta sbagliata del parametro $ncp\_prior$, questo potrebbe avvenire in maniera esplosiva. Perciò è fondamentale scegliere correttamente il parametro in questione per avere dei risultati attendibili.
+\item Il calcolo dei parametri è molto più costoso a causa della non esistenza di una soluzione analitica del massimo della log-likelihood. Per cui se il costo computazionale dovesse essere una priorità il metodo trattato potrebbe non essere (almeno direttamente) il più adatto.
 \end{itemize}
-Ci tengo a mettere in chiaro però che questi problemi non rendono il metodo inutile, ma sono problemi con cui bisogna fare i conti per poter apprezzare la superiore flessibilità che funzioni più generiche delle costanti possono offrire.
 \end{remark}
 \end{document}

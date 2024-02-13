@@ -32,7 +32,7 @@ def mult_helper(t,data_bracket,ncp_prior_list,fitness):
     return [p_0_array,ncp_prior_list]
 
 def calc_p_0(data,outfile = 'ncp.csv'):
-    with Pool(20) as p:
+    with Pool(50) as p:
         results = p.starmap(mult_helper,data)
     print(results)
     firstrow = np.concatenate([result[1] for result in results])
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     
     filename = '/data02/gammaflash/CIMONE/DL0/acquisizione_2023_01_27/rpg0/dl0/wf_runId_00293_configId_00000_2023-01-27T14_32_51.090204.h5'
     
-    data = Reader().get_data_list(filename,0,1000)
+    data = Reader().get_data_list(filename,0,10000)
     
     a,estr_inf,passo = data_raw_to_data_bracket_list(data,nbins=100)
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
                 np.linspace(5800,5900,101),
                 np.linspace(6800,6900,101)]
     
-    ncp_x_pairs = [(a[i],ncp_list[i]) for i in range(len(a))]
+    ncp_x_pairs = [(a[i][:1000],ncp_list[i]) for i in range(len(a))]
     
     with open('ncp.csv','a+') as file:
         write = csv.writer(file)

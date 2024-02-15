@@ -105,6 +105,38 @@ dove $S_k = \frac{1}{N_k}\sum_{i=1}^n\tilde{x}_i(t_i-t_n)$.
 Per valori sensibili di $N_k$ e $T_k$ la funzione è concava, perciò è sufficiente trovare un punto critico (se esiste) per trovare l'unico massimo. Siccome la funzione è di singola variabile e anche molto semplice da derivare, si è scelta una generalizzazione del metodo di Newton, il metodo di Halley, per trovare lo $0$ della derivata della nostra funzione $F_{max,k}$.
 
 La scelta di questo algoritmo è dovuta sia a questioni di stabilità numerica che a questioni di velocità di convergenza.
+\subsection{Estensioni al caso esponenziale e gaussiano}
+\begin{remark}
+Risulta interessante il caso in cui in ogni blocco la funzione sottostante non è soltanto del tipo $\gamma e^{a(t-t_n)}$ ma piuttosto $\gamma\left( e^{a(t-t_n)}+\lambda e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)$, ovvero esponenziale più normale.
+
+Utilizzando la statistica di Cash ottenuta nella prima sezione cerchiamo di ottimizzare i parametri:
+\begin{align*}
+F(\tilde{x}) &= \sum_{i=1}^n\tilde{x}_i\log(f(t_i))-\int_{t_1}^{t_n}f(t) dt \\
+&= \sum_{i=1}^{n}\tilde{x}_i\log\left(\gamma\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)\right) - \gamma\int_{t_1}^{t_n}e^{a(t-t_n)} dt - \gamma\lambda\underbrace{\int_{t_1}^{t_n}e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}dt}_{G(\mu,\sigma)}\\
+&= \underbrace{\sum_{i=1}^n\tilde{x}_i}_{N_k}\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\mu,\sigma)\\
+&= N_k\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\mu,\sigma).
+\end{align*}
+Per trovare il massimo imponiamo uguale a 0 la derivata parziale in $\gamma$:
+\begin{gather*}
+\frac{\partial F}{\partial\gamma} = \frac{N_k}{\gamma}-\frac{1-e^{-aT_k}}{a}-\lambda G(\mu,\sigma)\stackrel{!}{=}0.
+\end{gather*}
+Per cui
+$$
+\gamma_{max} = \frac{aN_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}.
+$$
+Di conseguenza possiamo calcolare la statistica di Cash in corrispondenza del valore massimo di $\gamma$:
+\begin{align*}
+F_{max} &= F(\gamma_{max},a,\lambda,\mu,\sigma) \\
+&= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}\right) + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-N_k.
+\end{align*}
+A seguire le derivate parziali di $F_{max}$, utili nel caso in cui si volesse implementare il calcolo degli ottimi parametri attraverso una salita del gradiente.
+\begin{align*}
+\frac{\partial F_{max}}{\partial a} &= N_k\left(\frac{1}{a}-\frac{\lambda G(\mu,\sigma)+e^{-a T_k}T_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{(t_i-t_n)e^{a(t_i-t_n)}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
+\frac{\partial F_{max}}{\partial \lambda} &= N_k\left(-\frac{a G(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
+\frac{\partial F_{max}}{\partial\mu} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\mu}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}-\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\frac{t_i-t_n-\mu}{\sigma^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
+\frac{\partial F_{max}}{\partial\sigma} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\sigma}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\left(\frac{t_i-t_n-\mu}{\sigma}\right)^3}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right).
+\end{align*}
+\end{remark}
 \section{Implementazione}
 Per fare quanto descritto sopra ci appoggiamo alla libreria Astropy per l'implementazione dell'algoritmo di Scargle (Bayesian Blocks) nel caso generale. Per implementare la funzione di fitness per il caso esponenziale si è scelto di estendere la classe \texttt{Events}, che implementa l'algoritmo nel caso di funzione di fitting costante. Difatti modificando il metodo \texttt{fit} è possibile mantenere tutta la struttura dell'algoritmo e cambiare soltanto il calcolo della funzione di fitness.
 
@@ -112,11 +144,13 @@ Per applicare il metodo implementato è sufficiente fare:
 \begin{verbatim}
 from astropy import bayesian_blocks
 from bb_exponential import ExponentialBlocks_Events
-bayesian_blocks(t,x,fitness=ExponentialBlocks_Events,ncp_prior=***)
+bayesian_blocks(t,x,fitness=ExponentialBlocks_Events,ncp_prior=***,ncp_fun=***)
 \end{verbatim}
-Il parametro \texttt{ncp\_prior} è possibile specificarlo a priori oppure lasciare la sua determinazione al calcolatore. Le specifiche sul calcolo automatico di un buon \texttt{ncp\_prior} verranno trattate nei prossimi capitoli.
+Il parametro opzionale \texttt{ncp\_prior} è possibile specificarlo a priori oppure lasciare la sua determinazione al calcolatore. Le specifiche sul calcolo automatico di un buon \texttt{ncp\_prior} verranno trattate nei prossimi capitoli.
 
-Questo metodo però ritorna solamente gli estremi dei nostri blocchi e non anche i parametri calcolati per la funzione di ottimo fitting sui blocchi.
+Il parametro opzionale \texttt{ncp\_fun} è una funzione che permette il calcolo di \texttt{ncp\_prior} a partire da \texttt{x}. Questo è utile specificarlo se si volesse usare la classe \texttt{ExponentialBlocks\_Events} su altri tipi di dati rispetto a quelli default. In tal caso infatti scelte diverse di \texttt{ncp\_prior} possono formare un algoritmo più sensibile o più robusto in base alle necessità sul tipo specifico di dato. Se vengono dati in input sia \texttt{ncp\_fun} che \texttt{ncp\_prior} sarà \texttt{ncp\_prior} ad avere priorità.
+
+La funzione \texttt{bayesian\_blocks} però ritorna solamente gli estremi dei nostri blocchi e non anche i parametri calcolati per la funzione di ottimo fitting sui blocchi.
 La scelta che si è fatta è stata quella di ricalcolare i parametri a fine esecuzione. Si riconosce che dal punto di vista del mero costo computazionale questa non è la scelta migliore (è necessario ricalcolare i parametri in un secondo tempo), tuttavia le motivazioni sono le seguenti:
 \begin{itemize}
 \item Il ricalcolo dei parametri è il comportamento della libreria Astropy; estenderlo per avere in output sia gli estremi che i parametri richiede la riscrittura quantomeno del metodo \texttt{fit} della classe \texttt{FitnessFunc} di Astropy, affinchè in fase di "peeling off" dell'array \texttt{last}, oltre al calcolo dell'ottimo estremo, si ottengano anche i parametri ottimi. L'implementazione di questo procedimento sarebbe lenta e romperebbe la compatibilità con precedenti implementazioni.
@@ -152,231 +186,8 @@ Si presenta ora il punto cruciale, ovvero il calcolo della costante $ncp\_prior=
 \end{enumerate}
 Una volta che sono state fatte queste stime si può applicare un'interpolazione su questi dati per avere una stima di $ncp\_prior$ in funzione di $p\_0$ e di $N$.
 
-Nell'implementazione si è scelta una interpolazione tramite spline sui dati costruiti con $p\_0$ uguale a $0$ per semplicità. Tali dati sono elencati nella seguente tabella.
+Nell'implementazione si è scelta una interpolazione tramite spline sui dati costruiti con $p\_0$ uguale a $0$ per semplicità. \'E possibile trovare i dati di interpolazione nel codice sorgente.
 
-\begin{tabular}{|c|c|}
-\hline
-N & ncp\_prior \\
-\hline
-140000 & 300 \\
-\hline
-165450 & 700 \\
-\hline
-190900 & 1050 \\
-\hline
-216350 & 1300 \\
-\hline
-241800 & 1550 \\
-\hline
-267250 & 1800 \\
-\hline
-292700 & 2050 \\
-\hline
-318150 & 2300 \\
-\hline
-343600 & 2400 \\
-\hline
-369050 & 2600 \\
-\hline
-394500 & 2950 \\
-\hline
-419950 & 3000 \\
-\hline
-445400 & 3200 \\
-\hline
-470850 & 3300 \\
-\hline
-496300 & 3700 \\
-\hline
-521750 & 3800 \\
-\hline
-547200 & 4000 \\
-\hline
-572650 & 4150 \\
-\hline
-598100 & 4200 \\
-\hline
-623550 & 4400 \\
-\hline
-649000 & 4550 \\
-\hline
-674450 & 4700 \\
-\hline
-699900 & 4800 \\
-\hline
-725350 & 5000 \\
-\hline
-750800 & 5100 \\
-\hline 
-\end{tabular} 
-\quad
-\begin{tabular}{|c|c|}
-\hline
-N & ncp\_prior \\
-\hline
-776250 & 5300 \\
-\hline
-801700 & 5250 \\
-\hline
-827150 & 5400 \\
-\hline
-852600 & 5600 \\
-\hline
-878050 & 5700 \\
-\hline
-903500 & 5900 \\
-\hline
-928950 & 5900 \\
-\hline
-954400 & 6100 \\
-\hline
-979850 & 6300 \\
-\hline
-1005300 & 6300 \\
-\hline
-1030750 & 6350 \\
-\hline
-1056200 & 6350 \\
-\hline
-1081650 & 6500 \\
-\hline
-1107100 & 6500 \\
-\hline
-1132550 & 6700 \\
-\hline
-1158000 & 6600 \\
-\hline
-1183450 & 6650 \\
-\hline
-1208900 & 6650 \\
-\hline
-1234350 & 6650 \\
-\hline
-1259800 & 6700 \\
-\hline
-1285250 & 6750 \\
-\hline
-1310700 & 6750 \\
-\hline
-1336150 & 6750 \\
-\hline
-1361600 & 6750 \\
-\hline
-1387050 & 6850 \\
-\hline
-\end{tabular} 
-\quad
-\begin{tabular}{|c|c|}
-\hline
-N & ncp\_prior \\
-\hline
-1412500 & 6850 \\
-\hline
-1437950 & 6850 \\
-\hline
-1463400 & 6900 \\
-\hline
-1488850 & 6900 \\
-\hline
-1514300 & 6900 \\
-\hline
-1539750 & 7000 \\
-\hline
-1565200 & 7000 \\
-\hline
-1590650 & 7000 \\
-\hline
-1616100 & 7000 \\
-\hline
-1641550 & 7000 \\
-\hline
-1667000 & 7000 \\
-\hline
-1692450 & 7000 \\
-\hline
-1717900 & 7000 \\
-\hline
-1743350 & 7000 \\
-\hline
-1768800 & 7000 \\
-\hline
-1794250 & 7000 \\
-\hline
-1819700 & 7000 \\
-\hline
-1845150 & 7000 \\
-\hline
-1870600 & 7000 \\
-\hline
-1896050 & 7000 \\
-\hline
-1921500 & 7000 \\
-\hline
-1946950 & 7000 \\
-\hline
-1972400 & 7000 \\
-\hline
-1997850 & 7000 \\
-\hline
-2023300 & 7000 \\
-\hline 
-\end{tabular}
-\quad
-\begin{tabular}{|c|c|}
-\hline
-N & ncp\_prior \\
-\hline
-2048750 & 7000 \\
-\hline
-2074200 & 7000 \\
-\hline
-2099650 & 7000 \\
-\hline
-2125100 & 7000 \\
-\hline
-2150550 & 7000 \\
-\hline
-2176000 & 7000 \\
-\hline
-2201450 & 7000 \\
-\hline
-2226900 & 7000 \\
-\hline
-2252350 & 7000 \\
-\hline
-2277800 & 7000 \\
-\hline
-2303250 & 7000 \\
-\hline
-2328700 & 7000 \\
-\hline
-2354150 & 7000 \\
-\hline
-2379600 & 7000 \\
-\hline
-2405050 & 7000 \\
-\hline
-2430500 & 7000 \\
-\hline
-2455950 & 7000 \\
-\hline
-2481400 & 7000 \\
-\hline
-2506850 & 7000 \\
-\hline
-2532300 & 7000 \\
-\hline
-2557750 & 7000 \\
-\hline
-2583200 & 7000 \\
-\hline
-2608650 & 7000 \\
-\hline
-2634100 & 7000 \\
-\hline
-2659550 & 7000 \\
-\hline 
-\end{tabular} 
 \section{Osservazioni senza particolare ordine}
 \begin{remark}
 In fase di calcolo della log-likelihood la nostra funzione \eqref{our_loglikel} non ha un buon comportamento computazionale: ad esempio, se la variabile $a$ risulta negativa il termine $-aT_k$ potrebbe essere abbastanza alto da causare un overflow nell'esponenziale; l'algoritmo in tal caso non ha problemi in quanto risulterebbe una log-likelihood sul blocco di $-\infty$, però questo potrebbe ostacolare l'ottimizzazione. Analogamente se $a$ risulta troppo vicino allo $0$ potrebbe succedere che l'argomento del $\log$ può esplodere se il denominatore dovesse diventare $0$ esatto. Per questi due casi si propongono due approssimazioni numeriche che dovrebbero evitare questo genere di problemi:

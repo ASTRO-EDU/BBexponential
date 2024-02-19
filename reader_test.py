@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 tmp = unexp_rows[i][0].split('/')[-1]
                 plt.savefig(f'outdir/loc_err_rate_{tmp}.png')
                 plt.clf()
-        if True:                         #combina le due funzioni sopra
+        if False:                         #combina le due funzioni sopra
                 unexp_lists = p.map(process_file,filenames)
                 tim = time.time()
                 with open(f'outdir/unexp_beh_{tim}.csv','a+') as file:
@@ -123,3 +123,7 @@ if __name__ == '__main__':
                         plt.clf()
                     except Exception as e:
                         pass
+    #new reader_test using process_file in reader
+    for filename in filenames:
+        tim = time.time()
+        Reader().process_file(filename,0,-1,f'outdir/{tim}',20)

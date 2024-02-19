@@ -67,9 +67,9 @@ L'uso della log-likelihood è centrale in quanto ci permette di avere la proprie
 Notiamo che ad ogni passaggio dell'esecuzione si mettono a confronto le log-likelihood delle partizioni dei primi $R$ bins: in particolare indipendentemente dalla funzione di fitting notiamo che è presente un termine che dopo aver fatto la somma sarà costante su ogni partizione: $-\sum_{i=1}^n \log(\tilde{x_i!})$, e, per questa ragione, a fini di massimizzazione può essere ignorato.
 
 Di conseguenza la funzione di fitting che verrà usata nei fatti sarà:
-\begin{equation*}
+\begin{equation}\label{Cash}
 \log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i\log(f(t_i)) -\int_{t_1}^{t_n}f(t) dt \\
-\end{equation*}
+\end{equation}
 e nel nostro caso specifico
 \begin{gather}
 \log L(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i(\log\gamma + a\cdot(t_i-t_n)) -\int_{t_1}^{t_n}\gamma e^{a(t-t_n)} dt.\label{fitness_exp}
@@ -109,7 +109,7 @@ La scelta di questo algoritmo è dovuta sia a questioni di stabilità numerica c
 \begin{remark}
 Risulta interessante il caso in cui in ogni blocco la funzione sottostante non è soltanto del tipo $\gamma e^{a(t-t_n)}$ ma piuttosto $\gamma\left( e^{a(t-t_n)}+\lambda e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)$, ovvero esponenziale più normale.
 
-Utilizzando la statistica di Cash ottenuta nella prima sezione cerchiamo di ottimizzare i parametri:
+Utilizzando la statistica di Cash ottenuta in \eqref{Cash} cerchiamo di ottimizzare i parametri:
 \begin{align*}
 F(\tilde{x}) &= \sum_{i=1}^n\tilde{x}_i\log(f(t_i))-\int_{t_1}^{t_n}f(t) dt \\
 &= \sum_{i=1}^{n}\tilde{x}_i\log\left(\gamma\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)\right) - \gamma\int_{t_1}^{t_n}e^{a(t-t_n)} dt - \gamma\lambda\underbrace{\int_{t_1}^{t_n}e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}dt}_{G(\mu,\sigma)}\\
@@ -136,6 +136,65 @@ A seguire le derivate parziali di $F_{max}$, utili nel caso in cui si volesse im
 \frac{\partial F_{max}}{\partial\mu} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\mu}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}-\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\frac{t_i-t_n-\mu}{\sigma^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
 \frac{\partial F_{max}}{\partial\sigma} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\sigma}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\left(\frac{t_i-t_n-\mu}{\sigma}\right)^3}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right).
 \end{align*}
+\end{remark}
+\subsection{Estensioni al caso esponenziale più costante}
+\begin{remark}
+Lavorando su dati reali risulta evidente che molto spesso ci si trova in una situazione dove c'è un rumore abbastanza costante su cui va a sommarsi un segnale che segue una certa legge, è quindi molto interessante gestire il caso in cui la nostra funzione di fitting è del tipo $\gamma(1+f(t))$ dove $f(t)$ si può pensare, a meno di una costante moltiplicativa $\gamma$, come la legge del segnale e $\gamma$ come la media del rumore. 
+
+Vediamo il caso più generale possibile prima di entrare nel dettaglio di questa sottosezione. Con la statistica di Cash \eqref{Cash} usando $\gamma(1+f(t))$ otteniamo
+\begin{align}
+F(\tilde{x}) &= \sum_{i=1}^n\tilde{x}_i\log(\gamma(1+f(t_i)))-\int_{t_1}^{t_n}\gamma(1+f(t)) dt \nonumber\\
+&= \underbrace{\sum_{i=1}^n\tilde{x}_i}_{N_k}\log\gamma + \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i))-\gamma\underbrace{(t_n-t_1)}_{T_k}-\gamma\int_{t_1}^{t_n}f(t) dt\nonumber\\
+&= N_k\log\gamma + \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i)) -\gamma T_k -\gamma\int_{t_1}^{t_n}f(t) dt.\label{cash_gamma}
+\end{align}
+Per massimizzare $F$ prendiamo $\gamma$ così che il gradiente si annulli:
+\begin{gather*}
+\frac{\partial F}{\partial\gamma}=\frac{N_k}{\gamma}-T_k-\int_{t_1}^{t_n}f(t) dt\stackrel{!}{=}0
+\end{gather*}
+Per cui
+$$
+\gamma = \frac{N_k}{T_k+\int_{t_1}^{t_n}f(t)dt}.
+$$
+Da cui la funzione da ottimizzare diventa
+\begin{align}\nonumber
+F_{max}(\tilde{x}) &= N_k\log\left(\frac{N_k}{T_k+\int_{t_1}^{t_n}f(t)dt}\right) + \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i)) -\frac{N_k}{T_k+\int_{t_1}^{t_n}f(t)dt} \left(T_k +\int_{t_1}^{t_n}f(t) dt\right)\\
+&= N_k\log\left(\frac{N_k}{T_k+\int_{t_1}^{t_n}f(t)dt}\right) + \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i)) -N_k.\label{c_plus_cash_max}
+\end{align}
+\end{remark}
+\begin{remark}
+Usiamo i risultati del punto precedente con $f(t)=\lambda e^{a(t-t_n)}$:
+
+Grazie a \eqref{c_plus_cash_max} troviamo che
+\begin{align*}
+F_{max}(\tilde{x}) &= N_k\log\left(\frac{N_k}{T_k+\int_{t_1}^{t_n}\lambda e^{a(t-t_n)}dt}\right) + \sum_{i=1}^n\tilde{x}_i\log(1+\lambda e^{a(t_i-t_n)}) -N_k\\
+&= N_k\log\left(\frac{N_k}{T_k+\lambda \frac{1-e^{-aT_k}}{a}}\right) + \sum_{i=1}^n\tilde{x}_i\log(1+\lambda e^{a(t_i-t_n)}) -N_k\\
+&= N_k\log\left(\frac{aN_k}{aT_k+\lambda \left(1-e^{-aT_k}\right)}\right) + \sum_{i=1}^n\tilde{x}_i\log(1+\lambda e^{a(t_i-t_n)}) -N_k.
+\end{align*}
+Usiamo le condizioni del primo ordine chiedendo che il gradiente si annulli per trovare i parametri che massimizzano questa statistica,
+\begin{align*}
+\frac{\partial F_{max}}{\partial a} &= \frac{N_k}{a}-N_k\frac{T_k+\lambda e^{-aT_k}T_k}{aT_k+\lambda \left(1-e^{-aT_k}\right)}+\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{a(t_i-t_n)}(t_i-t_n)}{1+\lambda e^{a(t_i-t_n)}}\stackrel{!}{=}0\\
+\frac{\partial F_{max}}{\partial \lambda} &= -N_k\frac{1-e^{-aT_k}}{aT_k+\lambda \left(1-e^{-aT_k}\right)}+\sum_{i=1}^n\tilde{x}_i\frac{e^{a(t_i-t_n)}}{1+\lambda e^{a(t_i-t_n)}}\stackrel{!}{=}0.
+\end{align*}
+\end{remark}
+\begin{remark}
+Sarebbe molto ragionevole pensare che calcolando preventivamente la media del rumore si possa diminuire il numero di variabili da ottimizzare, sfortunatamente la realtà non è sempre ragionevole. Vediamo cosa succede se la variabile $\gamma$ fosse costante, partiamo da \eqref{cash_gamma}:
+\begin{align*}
+F(\tilde{x}) = N_k\log\gamma + \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i)) -\gamma T_k -\gamma\int_{t_1}^{t_n}f(t) dt.
+\end{align*}
+Siccome questa è la log-likelihood di ogni blocco ed è additiva se $\gamma$ fosse costante sui blocchi la log-likelihood complessiva del dato sarebbe la somma su tutti i blocchi. Questo ha la importante conseguenza che i termini $N_k\log\gamma$ e $\gamma T_k$ possono essere scartati\footnote{Si usa in maniera centrale il fatto che $\gamma$ è costante sui blocchi, se così non fosse (che è il caso classico) non sarebbe possibile scartare questi termini.} in quanto sommando su tutti i blocchi $\sum T_k$ è la lunghezza temporale del dato e $\sum N_k$ è uguale alla somma di tutte le altezze dei bin di $x$. Per cui possiamo ridurci a
+\begin{align*}
+F(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i\log(1+f(t_i)) -\gamma\int_{t_1}^{t_n}f(t) dt.
+\end{align*}
+Nel nostro caso specifico con $f(t)=\lambda e^{a(t-t_n)}$ otteniamo
+\begin{align*}
+F(\tilde{x}) = \sum_{i=1}^n\tilde{x}_i\log(1+\lambda e^{a(t_i-t_n)}) -\lambda\gamma\frac{1-e^{-aT_k}}{a}.
+\end{align*}
+Chiediamo ora le condizioni al primo ordine per massimizzare $F$:
+\begin{align*}
+\frac{\partial F}{\partial a} &= \sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{a(t_i-t_n)}(t_i-t_n)}{1+\lambda e^{a(t_i-t_n)}}-\gamma\lambda\frac{aT_ke^{-aT_k}-1+e^{-aT_k}}{a^2}\stackrel{!}{=}0\\
+\frac{\partial F}{\partial \lambda} &= \sum_{i=1}^n\tilde{x}_i\frac{e^{a(t_i-t_n)}}{1+\lambda e^{a(t_i-t_n)}}-\gamma\frac{1-e^{-aT_k}}{a}\stackrel{!}{=}0.
+\end{align*}
+Sfortunatamente nessuno dei termini permette di ottenere analiticameente $a$ o $\lambda$ in quanto sono rinchiusi all'interno della somma. Di conseguenza il numero di variabili da ottimizzare rimane $2$, non migliorando a livello di costo computazionale del caso precedente con il demerito di aver fatto una supposizione sul valore di $gamma$ che riduce la generalità del metodo.
 \end{remark}
 \section{Implementazione}
 Per fare quanto descritto sopra ci appoggiamo alla libreria Astropy per l'implementazione dell'algoritmo di Scargle (Bayesian Blocks) nel caso generale. Per implementare la funzione di fitness per il caso esponenziale si è scelto di estendere la classe \texttt{Events}, che implementa l'algoritmo nel caso di funzione di fitting costante. Difatti modificando il metodo \texttt{fit} è possibile mantenere tutta la struttura dell'algoritmo e cambiare soltanto il calcolo della funzione di fitness.

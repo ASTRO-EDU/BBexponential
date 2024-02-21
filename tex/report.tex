@@ -107,34 +107,33 @@ Per valori sensibili di $N_k$ e $T_k$ la funzione è concava, perciò è suffici
 La scelta di questo algoritmo è dovuta sia a questioni di stabilità numerica che a questioni di velocità di convergenza.
 \subsection{Estensioni al caso esponenziale e gaussiano}
 \begin{remark}
-Risulta interessante il caso in cui in ogni blocco la funzione sottostante non è soltanto del tipo $\gamma e^{a(t-t_n)}$ ma piuttosto $\gamma\left( e^{a(t-t_n)}+\lambda e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)$, ovvero esponenziale più normale.
+Risulta interessante il caso in cui in ogni blocco la funzione sottostante non è soltanto del tipo $\gamma e^{a(t-t_n)}$ ma piuttosto $\gamma\left( e^{a(t-t_n)}+\lambda e^{-\left(\frac{t-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\right)$, ovvero esponenziale più normale.
 
 Utilizzando la statistica di Cash ottenuta in \eqref{Cash} cerchiamo di ottimizzare i parametri:
 \begin{align*}
 F(\tilde{x}) &= \sum_{i=1}^n\tilde{x}_i\log(f(t_i))-\int_{t_1}^{t_n}f(t) dt \\
-&= \sum_{i=1}^{n}\tilde{x}_i\log\left(\gamma\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)\right) - \gamma\int_{t_1}^{t_n}e^{a(t-t_n)} dt - \gamma\lambda\underbrace{\int_{t_1}^{t_n}e^{-\left(\frac{t-t_n+\mu}{\sqrt{2}\sigma}\right)^2}dt}_{G(\mu,\sigma)}\\
-&= \underbrace{\sum_{i=1}^n\tilde{x}_i}_{N_k}\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\mu,\sigma)\\
-&= N_k\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\mu,\sigma).
+&= \sum_{i=1}^{n}\tilde{x}_i\log\left(\gamma\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\right)\right) - \gamma\int_{t_1}^{t_n}e^{a(t-t_n)} dt - \gamma\lambda\underbrace{\int_{t_1}^{t_n}e^{-\left(\frac{t-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}dt}_{G(\sigma)}\\
+&= \underbrace{\sum_{i=1}^n\tilde{x}_i}_{N_k}\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\sigma)\\
+&= N_k\log\gamma + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\right)-\gamma\left(\frac{1-e^{-aT_k}}{a}\right)-\gamma\lambda G(\sigma).
 \end{align*}
 Per trovare il massimo imponiamo uguale a 0 la derivata parziale in $\gamma$:
 \begin{gather*}
-\frac{\partial F}{\partial\gamma} = \frac{N_k}{\gamma}-\frac{1-e^{-aT_k}}{a}-\lambda G(\mu,\sigma)\stackrel{!}{=}0.
+\frac{\partial F}{\partial\gamma} = \frac{N_k}{\gamma}-\frac{1-e^{-aT_k}}{a}-\lambda G(\sigma)\stackrel{!}{=}0.
 \end{gather*}
 Per cui
 $$
-\gamma_{max} = \frac{aN_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}.
+\gamma_{max} = \frac{aN_k}{1-e^{-aT_k}+a\lambda G(\sigma)}.
 $$
 Di conseguenza possiamo calcolare la statistica di Cash in corrispondenza del valore massimo di $\gamma$:
 \begin{align*}
-F_{max} &= F(\gamma_{max},a,\lambda,\mu,\sigma) \\
-&= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}\right) + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\right)-N_k.
+F_{max} &= F(\gamma_{max},a,\lambda,\sigma) \\
+&= N_k\log\left(\frac{aN_k}{1-e^{-aT_k}+a\lambda G(\sigma)}\right) + \sum_{i=1}^n\tilde{x}_i\log\left( e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\right)-N_k.
 \end{align*}
 A seguire le derivate parziali di $F_{max}$, utili nel caso in cui si volesse implementare il calcolo degli ottimi parametri attraverso una salita del gradiente.
 \begin{align*}
-\frac{\partial F_{max}}{\partial a} &= N_k\left(\frac{1}{a}-\frac{\lambda G(\mu,\sigma)+e^{-a T_k}T_k}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{(t_i-t_n)e^{a(t_i-t_n)}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
-\frac{\partial F_{max}}{\partial \lambda} &= N_k\left(-\frac{a G(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
-\frac{\partial F_{max}}{\partial\mu} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\mu}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}-\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\frac{t_i-t_n-\mu}{\sigma^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right)\\
-\frac{\partial F_{max}}{\partial\sigma} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\sigma}(\mu,\sigma)}{1-e^{-aT_k}+a\lambda G(\mu,\sigma)}+\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}\left(\frac{t_i-t_n-\mu}{\sigma}\right)^3}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\mu}{\sqrt{2}\sigma}\right)^2}}\right).
+\frac{\partial F_{max}}{\partial a} &= N_k\left(\frac{1}{a}-\frac{\lambda G(\sigma)+e^{-a T_k}T_k}{1-e^{-aT_k}+a\lambda G(\sigma)}+\frac{1}{N_k}\sum_{i=1}^n\tilde{x}_i\frac{(t_i-t_n)e^{a(t_i-t_n)}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}}\right)\\
+\frac{\partial F_{max}}{\partial \lambda} &= N_k\left(-\frac{a G(\sigma)}{1-e^{-aT_k}+a\lambda G(\sigma)}+\frac{1}{N_k}\sum_{i=1}^n\tilde{x}_i\frac{e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}}\right)\\
+\frac{\partial F_{max}}{\partial\sigma} &= N_k\left(-\frac{a\lambda \frac{\partial G}{\partial\sigma}(\frac{t_1+t_n}{2},\sigma)}{1-e^{-aT_k}+a\lambda G(\sigma)}+\frac{1}{N_k}\sum_{i=1}^n\tilde{x}_i\frac{\lambda e^{-\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}\left(\frac{t_i-\frac{t_1+t_n}{2}}{\sigma}\right)^3}{e^{a(t_i-t_n)}+\lambda e^{-\left(\frac{t_i-t_n+\frac{t_1+t_n}{2}}{\sqrt{2}\sigma}\right)^2}}\right).
 \end{align*}
 \end{remark}
 \subsection{Estensioni al caso esponenziale più costante}

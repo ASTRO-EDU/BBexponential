@@ -11,3 +11,5 @@ This is a brief explaination of the files in the repo:
 * ncp_2: python notebook used for development, it has been used to understand the rough structure of the iperparameter ncp_prior in real data
 * ncp_prior_v2: python script used for development, it has been used to understand the rough structure of the iperparameter ncp_prior in real data
 * reader_test: python script used for development, it has been used to understand the precise structure of ncp_prior in real data. Very useful if there is the need to modify ncp_prior for different type of data or if different specifications for bad behaviour are constructed
+* generator: small class used to generate artifical gammaflashes
+* generator: python notebook used to develop the generator class

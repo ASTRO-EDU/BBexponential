@@ -324,6 +324,32 @@ Una volta che sono state fatte queste stime si può applicare un'interpolazione 
 
 Nell'implementazione si è scelta una interpolazione tramite spline sui dati costruiti con $p\_0$ uguale a $0$ per semplicità. \'E possibile trovare i dati di interpolazione nel codice sorgente.
 
+\section{Generetore di dati di Gammaflash}
+\begin{remark}
+\'E stato implementato un generatore di gammaflash artificiali che si può rivelare molto utili a fini di verifica e di tuning dei parametri dell'algoritmo trattato in questo report.
+
+Il modello è ottenuto applicando una convoluzione con kernel gaussiano di media $0$ a una funzione del tipo differenza di esponenziali $e^{-\frac{t}{\tau_1}}-e^{-\frac{t}{\tau_2}}$ il che genera una mollificata che rappresenta più accuratamente il gammaflash. 
+Un gammaflash che si verifica nell'istante $t=0$ segue la legge
+$$
+f(t) = H \left(e^{\left(\frac{\sigma^2}{2\tau_1^2}-\frac{t}{\tau_1}\right)}\left(1+erf\left(\frac{t}{\sqrt{2}\sigma}-\frac{\sqrt{2}\sigma}{2\tau_1}\right)-e^{\left(\frac{\sigma^2}{2\tau_2^2}-\frac{t}{\tau_2}\right)}\left(1+erf\left(\frac{t}{\sqrt{2}\sigma}-\frac{\sqrt{2}\sigma}{2\tau_2}\right)\right)\right)\right),
+$$
+dove $H$ è il fattore di ampiezza, $\sigma$ la deviazione standard del kernel gaussiano, $\tau_1$ e $\tau_2$ rispettivamente la costante di decadimento nel tempo per le componenti veloci e lente del gammaflash.
+
+Riguardo l'implementazione il tutto è contenuto nella classe \texttt{gammaflash\_generator} durante la cui inizializzazione vengono passati i parametri che descrivono la successione di gammaflash:
+\begin{itemize}
+\item \texttt{t\_s}: array che contiene i tempi di inizio di tutti i gammaflash
+\item \texttt{H\_s}: array o float, ampiezze dei gammaflash, se è specificato un solo valore esso viene condiviso da tutti i gammaflash
+\item \texttt{sigma\_s}: array o float, deviazione standard del kernel gaussiano per i gammaflash, se è specificato un solo valore esso viene condiviso da tutti i gammaflash\footnote{Notasi che per generalità viene lasciata la possibilità di specificarlo per ogni gammaflash ma fare ciò non è logico in quanto la convoluzione si distribuisce su tutti i gammaflash ed è quindi unica.}.
+\item \texttt{tau1\_s}: array o float, componente veloce di decadimento nel tempo dei gammaflash, se è specificato un solo valore esso viene condiviso da tutti i gammaflash
+\item \texttt{tau2\_s}: array o float, componente lenta di decadimento nel tempo dei gammaflash, se è specificato un solo valore esso viene condiviso da tutti i gammaflash\footnote{Per generalità si lascia la possibilità di specificare le componenti di decadimento per ogni gammaflash, tuttavia, siccome questi parametri dipendono dalla struttura fisica della strumentazione bisognerebbe specificare un solo valore che viene condiviso da tutti i gammaflash.}.
+\item \texttt{background}: float, valore medio del background.
+\end{itemize}
+Sono implementati due metodi che permettono di ottenere un array con i valori del segnale artificiale:
+\begin{itemize}
+\item \texttt{signal\_get}: ha come input l'array \texttt{t\_plot} dei tempi su cui si vuole valutare il segnale, restituisce l'array delle valutazione del segnale su \texttt{t\_plot}.
+\item \texttt{signal\_get\_noise}: come \texttt{signal\_get} ma sul segnale viene applicato un rumore gaussiano di deviazione standard \texttt{sigma}.
+\end{itemize}
+\end{remark}
 \section{Osservazioni senza particolare ordine}
 \begin{remark}
 In fase di calcolo della log-likelihood la nostra funzione \eqref{our_loglikel} non ha un buon comportamento computazionale: ad esempio, se la variabile $a$ risulta negativa il termine $-aT_k$ potrebbe essere abbastanza alto da causare un overflow nell'esponenziale; l'algoritmo in tal caso non ha problemi in quanto risulterebbe una log-likelihood sul blocco di $-\infty$, però questo potrebbe ostacolare l'ottimizzazione. Analogamente se $a$ risulta troppo vicino allo $0$ potrebbe succedere che l'argomento del $\log$ può esplodere se il denominatore dovesse diventare $0$ esatto. Per questi due casi si propongono due approssimazioni numeriche che dovrebbero evitare questo genere di problemi:
@@ -344,5 +370,128 @@ Quando si usa questo algoritmo è importante notare che le funzioni esponenziali
 \item \'E proprio della natura della funzione esponenziale la velocità nel crescere: questo permette di rappresentare alcuni tipi particolari di dati con grande fedeltà. Bisogna comunque fare attenzione al pericolo che ciò comporta: se il metodo fallisse, ad esempio per una scelta sbagliata del parametro $ncp\_prior$, questo potrebbe avvenire in maniera esplosiva. Perciò è fondamentale scegliere correttamente il parametro in questione per avere dei risultati attendibili.
 \item Il calcolo dei parametri è molto più costoso a causa della non esistenza di una soluzione analitica del massimo della log-likelihood. Per cui se il costo computazionale dovesse essere una priorità il metodo trattato potrebbe non essere (almeno direttamente) il più adatto.
 \end{itemize}
+\end{remark}
+\section{In caso di dati gaussiani}
+Tutto il report ha trattato il caso in cui la distribuzione delle variabili aleatorie $X_i$ (i valori dei bin) fosse di Poisson. Tuttavia potrebbe succedere di dover lavorare con dati la cui distribuzione sottostante è di tipo gaussiano, per questa ragione si estendono i risultati principali di questo report a questo secondo caso.
+\begin{theorem}
+Sia $t\in\mathbb{R}^n$ successione crescente di tempi reali.
+Sia $x\in\mathbb{Z^+}^n$ variabile aleatoria di legge $\bigotimes_{i=1}^{n}N(f(t_i),\sigma)$, dove $f:[t_1,t_n]\rightarrow\mathbb{R}^+$. Evidentemente le marginali sono indipendenti tra loro. Allora la log-likelihood di una realizzazione $\tilde{x}$ sarà:
+$$
+\log L(\tilde{x}) = -n\log(\sqrt{2\pi}\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^n\tilde{x}_i^2  -\frac{1}{2\sigma^2}\sum_{i=1}^n f(t_i)^2+\frac{1}{\sigma^2}\sum_{i=1}^n\tilde{x}_if(t_i)
+$$
+\begin{proof}
+La likelihood di ognuna delle marginali sarà 
+$$
+L_i = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(\tilde{x}_i-f(t_i))^2}{2\sigma^2}}
+$$
+siccome la sua legge è normale. Grazie all'indipendenza tra le componenti di $x$ la likelihood sarà
+$$
+L = \prod_{i=1}^{n}\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(\tilde{x}_i-f(t_i))^2}{2\sigma^2}}.
+$$
+Passando alla log-liklihood otteniamo
+$$
+\log L(\tilde{x}) = -n\log(\sqrt{2\pi}\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^n\tilde{x}_i^2  -\frac{1}{2\sigma^2}\sum_{i=1}^n f(t_i)^2+\frac{1}{\sigma^2}\sum_{i=1}^n\tilde{x}_if(t_i)
+$$
+che conclude la dimostrazione.
+\end{proof}
+\end{theorem}
+\begin{remark}
+Per ragioni analoghe a quelle presentate nella sezione $1$ possiamo ignorare il primo e il secondo addendo in quanto la loro somma su tutti i blocchi sarà costante. Dopodichè possiamo convertire la sommatoria delle $f^2$ in un integrale per semplificare il calcolo e moltiplicare per $\sigma^2$ in quanto non modifica il confronto tra le log-likelihood. In conclusione la statistica che useremo per confrontare le partizioni sarà
+\begin{equation}\label{Cash_gaussian}
+F(\tilde{x}) = \sum_{i=1}^n\tilde{x}_if(t_i)-\frac{1}{2}\int_{t_1}^{t_n}f(t)^2dt.
+\end{equation}
+\end{remark}
+\begin{remark}
+Se $f(t)=\gamma e^{a(t-t_n)}$ risulta che
+$$
+F(\tilde{x}) = \gamma\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}-\frac{\gamma^2}{4a}(1-e^{-2aT_k}).
+$$
+Vogliamo massimizzare questo valore, per cui chiediamo le condizioni al primo ordine:
+\begin{equation*}
+\frac{\partial F}{\partial\gamma} = \sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}-\frac{\gamma}{2a}(1-e^{-2aT_k})\stackrel{!}{=}0.
+\end{equation*}
+Per cui
+$$
+\gamma = \frac{2a\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{1-e^{-2aT_k}}.
+$$
+Di conseguenza sostituendo il valore massimo di $\gamma$ in $F$ otteniamo
+\begin{align*}
+F_{max}(a) &= \frac{2a}{1-e^{-2aT_k}}\left(\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}\right)^2-\frac{\left(\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}\right)^24a^2}{4a(1-e^{-2aT_k})^2}(1-e^{-2aT_k})\\
+&= \frac{2a}{1-e^{-2aT_k}}\left(\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}\right)^2-\frac{a}{1-e^{-2aT_k}}\left(\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}\right)^2\\
+&= \frac{a}{1-e^{-2aT_k}}\left(\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}\right)^2.
+\end{align*}
+Per cui se poniamo
+$$
+S(a) = \sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)},
+$$
+risulta che
+$$
+F_{max}(a) = \frac{aS(a)^2}{1-e^{-2aT_k}}.
+$$
+Di conseguenza per trovare il massimo di questa funzione calcoliamone la derivata:
+\begin{gather*}
+\frac{\partial F_{max}}{\partial a}(a)=\frac{\left(S(a)^2+a2S'(a)\right)(1-e^{-2aT_k})-aS(a)^22T_ke^{-2aT_k}}{(1-e^{-2aT_k})^2}.
+\end{gather*}
+\end{remark}
+\begin{remark}
+Nel caso si volessero trattare funzioni del tipo $f(t)=\gamma(1+f(t))$ la statistica \eqref{Cash_gaussian} diventa
+$$
+F(\tilde{x}) = \gamma N_k+\gamma\sum_{i=1}^n\tilde{x}_if(t_i)-\frac{\gamma^2}{2}\int_{t_1}^{t_n}1+f(t)^2+2f(t)dt.
+$$
+Imponiamo le condizioni al prim'ordine per calcolare il valore ottimale di $\gamma$:
+$$
+\frac{\partial F}{\partial\gamma} = N_k+\sum_{i=1}^n\tilde{x}_if(t_i)-\gamma\left(T_k+\int_{t_1}^{t_n}f(t)^2dt+2\int_{t_1}^{t_n}f(t)dt\right)\stackrel{!}{=}0.
+$$
+Per cui
+$$
+\gamma = \frac{N_k+\sum_{i=1}^n\tilde{x}_if(t_i)}{T_k+\int_{t_1}^{t_n}f(t)^2dt+2\int_{t_1}^{t_n}f(t)dt}.
+$$
+\end{remark}
+\begin{remark}
+Se $f(t)=\gamma(1+\lambda e^{a(t-t_n)})$ notiamo che la statistica diventa
+$$
+F(\tilde{x}) = \gamma N_k+\gamma\lambda\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}-\frac{\gamma^2}{2}\left(T_k+\lambda^2\frac{1-e^{-2aT_k}}{2a}+2\lambda\frac{1-e^{-aT_k}}{a}\right),
+$$
+e il valore ottimo di $\gamma$ è
+\begin{equation}\label{opt_gamma_gauss}
+\gamma = \frac{N_k+\lambda\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{T_k+\lambda^2\frac{1-e^{-2aT_k}}{2a}+2\lambda\frac{1-e^{-aT_k}}{a}} = 
+2a\frac{N_k+\lambda\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{2aT_k+\lambda^2(1-e^{-2aT_k})+4\lambda(1-e^{-aT_k})}.
+\end{equation}
+Possiamo fare la stessa cosa per $\lambda$ e ottenere che 
+$$
+\lambda = \frac{2a\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}-2\gamma(1-e^{-aT_k})}{\gamma(1-e^{-2aT_k})}.
+$$
+Notiamo che il valore ottimale di $\gamma$ e $\lambda$ deve essere ottenuto nel punto in cui la statistica viene massimizzata, ma allora possiamo mettere a sistema i due valori e isolare in una delle due equazioni l'altra variabile così da uguagliare i due termini:
+\begin{gather*}
+\gamma = 2a\frac{N_k+\lambda\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{2aT_k+\lambda^2(1-e^{-2aT_k})+4\lambda(1-e^{-aT_k})}\\
+\lambda = \frac{2a\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}-2\gamma(1-e^{-aT_k})}{\gamma(1-e^{-2aT_k})}.
+\end{gather*}
+Per cui
+\begin{gather*}
+\gamma = 2a\frac{N_k+\lambda\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{2aT_k+\lambda^2(1-e^{-2aT_k})+4\lambda(1-e^{-aT_k})}\\
+\gamma = \frac{2aS(a)}{\lambda(1-e^{-2aT_k})+2(1-e^{-aT_k})}.
+\end{gather*}
+Possiamo ora uguagliarle e ottenere $\lambda$ in pura funzione di $a$:
+\begin{gather*}
+2a\frac{N_k+\lambda S(a)}{2aT_k+\lambda^2(1-e^{-2aT_k})+4\lambda(1-e^{-aT_k})} = \frac{2aS(a)}{\lambda(1-e^{-2aT_k})+2(1-e^{-aT_k})}\\
+...\\
+\lambda(a) = \frac{2aS(a)T_k}{N_k(1-e^{-2aT_k})-2S(a)(1-e^{-aT_k})}.
+\end{gather*}
+Possiamo inserire $\lambda(a)$ in $\gamma$ e ottenere 
+$$
+\gamma(a) = 2a\frac{N_k+\lambda(a)\sum_{i=1}^n\tilde{x}_ie^{a(t_i-t_n)}}{2aT_k+\lambda(a)^2(1-e^{-2aT_k})+4\lambda(a)(1-e^{-aT_k})}.
+$$
+Per cui la statistica da massimizzare diventa
+$$
+F(\tilde{x}) = \gamma(a) N_k+\gamma(a)\lambda(a)S(a)-\frac{\gamma(a)^2}{2}\left(T_k+\lambda(a)^2\frac{1-e^{-2aT_k}}{2a}+2\lambda(a)\frac{1-e^{-aT_k}}{a}\right)
+$$
+la cui derivata è
+\begin{align*}
+F'(a) &= \gamma'(a)N_k + \gamma'(a)\lambda(a)S(a) + \gamma(a)\lambda'(a)S(a) + \gamma(a)\lambda(a)S'(a) \\
+&\qquad- \gamma(a)\gamma'(a)\left(T_k+\lambda(a)^2\frac{1-e^{-2aT_k}}{2a}+2\lambda(a)\frac{1-e^{-aT_k}}{a}\right) \\
+&\qquad- \frac{\gamma(a)^2}{2}\left(\lambda(a)\lambda'(a)\frac{1-e^{-2aT_k}}{a}-\lambda(a)^2\frac{1-2aT_ke^{-2aT_k}-e^{-2aT_k}}{2a^2}\right.\\
+&\qquad\qquad\qquad\qquad+\left.2\lambda'(a)\frac{1-e^{-aT_k}}{a}+2\lambda(a)\frac{1-aT_ke^{-aT_k}-e^{-aT_k}}{a^2}\right).
+\end{align*}
+La complessità di questa derivata è innegabile, tuttavia siamo riusciti a convertire un modello con 3 parametri da ottimizzare in un modello con un solo parametro da ottimizzare. Non è affatto casuale che i parametri ottimizzati analiticamente fossero quelli relativi a coefficienti additivi e moltiplicativi e la ragione la si può trovare nell'integrale: esso è lineare e termini additivi e coefficienti possono uscire facilmente dall'integrale. Così isolarli diventa possibile.
 \end{remark}
 \end{document}

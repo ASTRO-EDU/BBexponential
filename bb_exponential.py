@@ -42,10 +42,11 @@ class ExponentialBlocks_Events(Events):
         for i in range(len(N_k)-1):
             x[i] = N_k[i]-N_k[i+1]
         return x
-    
+
+    # Halley
     def compute_a(self,T_k,N_k,S_k):
         def Q(a):
-            tmp = np.clip(a*T_k,-70,70)
+            tmp = np.clip(a*T_k,-70,70) #per stabilita' numerica
             return np.exp(-tmp)/(1-np.exp(-tmp))
         def f(a):
             return (1/a)-T_k*Q(a)+S_k
@@ -61,7 +62,8 @@ class ExponentialBlocks_Events(Events):
             print('Occhio')
             a=1
         return a
-        
+       
+    #funzione di fitness del blocco - logL    
     def fitness(self, N_k, T_k):
         # C105 from Scargle (2013) (even if it was called likelihood that is an error, it is the log-likelihood)
         S_k = -(1/N_k)*(np.cumsum((T_k*self.anti_N_k(N_k))[::-1])[::-1])
@@ -106,7 +108,7 @@ class ExponentialBlocks_Events(Events):
 
         # Compute ncp_prior if not defined
         if self.ncp_prior is None:
-            ncp_prior = self.compute_ncp_prior(sum(x))
+            ncp_prior = self.compute_ncp_prior(sum(x)) #modificato rispetto all'originale per tenere conto dell'esponenziale
         else:
             ncp_prior = self.ncp_prior
 
